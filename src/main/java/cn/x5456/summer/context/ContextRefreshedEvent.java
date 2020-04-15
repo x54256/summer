@@ -1,6 +1,4 @@
-package cn.x5456.summer.beans;
-
-import cn.x5456.summer.beans.factory.ApplicationContext;
+package cn.x5456.summer.context;
 
 /**
  * 当ApplicationContext初始化或刷新时引发的事件。

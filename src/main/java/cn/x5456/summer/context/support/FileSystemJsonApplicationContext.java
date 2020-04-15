@@ -1,8 +1,14 @@
-package cn.x5456.summer.beans.factory.support;
+package cn.x5456.summer.context.support;
 
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.beans.factory.support.JsonBeanFactoryImpl;
 
 /**
+ * 读取 json 文件的 ApplicationContext
+ * <p>
+ * 它负责调用 AbstractApplicationContext 定义的 refresh() 方法，然后父类会调用它的 refreshBeanFactory() 方法，初始化 bean 工厂
+ * <p>
+ * 如果传入的是文件数组，那么前一个是后一个的父容器
  *
  * @author yujx
  * @date 2020/04/15 12:39
@@ -12,6 +18,7 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
     // 当前所在配置文件的路径
     private String configLocation;
 
+    // 与当前 ApplicationContext 相关联的 BF
     private ListableBeanFactory beanFactory;
 
 
@@ -50,16 +57,16 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
             // 这个地方返回的是当前索引的上一个索引 new 出来的对象，所以要将这个 applicationContext 设为当前路径索引的父容器
             // 假设用户传入2个文件路径，这个会返回用第二个文件创造出来的applicationContext，要将其设置为当前（也就是第一个文件创造出来的）容器的父容器
             FileSystemJsonApplicationContext applicationContext = new FileSystemJsonApplicationContext(temp);
-            // 设置父容器的目的是为了 refresh() 时能够找到它，并将其作为父 BF。
+            // 设置父容器的目的是为了下面 refresh() 时能够找到它，并将其作为父 BF。
             super.setParent(applicationContext);
         }
 
         // 刷新容器，会调用 refreshBeanFactory() 方法
-        refresh();
+        super.refresh();
     }
 
     /**
-     * 刷新 BF
+     * 初始化当前 ApplicationContext 的 BF
      */
     @Override
     protected void refreshBeanFactory() {
@@ -67,20 +74,10 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
     }
 
     /**
-     * 获取 BF
+     * 获取当前 ApplicationContext 的 BF
      */
     @Override
     protected ListableBeanFactory getBeanFactory() {
         return beanFactory;
-    }
-
-    /**
-     * 根据名称获取它是否是单例（直接朋友，最少知道原则）
-     *
-     * @param name
-     */
-    @Override
-    public boolean isSingleton(String name) {
-        return false;
     }
 }

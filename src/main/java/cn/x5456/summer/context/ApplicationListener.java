@@ -1,6 +1,4 @@
-package cn.x5456.summer.beans.factory;
-
-import cn.x5456.summer.beans.ApplicationEvent;
+package cn.x5456.summer.context;
 
 import java.util.EventListener;
 
@@ -16,4 +14,9 @@ public interface ApplicationListener<T extends ApplicationEvent> extends EventLi
      * 处理事件的方法
      */
     void onApplicationEvent(T e);
+
+    /**
+     * 获取事件类型
+     */
+    Class<T> getEventType();
 }

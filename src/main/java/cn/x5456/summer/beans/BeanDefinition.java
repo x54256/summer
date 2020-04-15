@@ -1,4 +1,4 @@
-package cn.x5456.summer.beans.factory.config;
+package cn.x5456.summer.beans;
 
 /**
  * bean 的属性

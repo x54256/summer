@@ -2,8 +2,8 @@ package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.BeanFactory;
-import cn.x5456.summer.beans.factory.config.BeanDefinition;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +85,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      */
     @Override
     public boolean isSingleton(String name) {
-        return this.getBeanDefinition(name).getScope() == BeanDefinition.ScopeEnum.SINGLETON;
+        BeanDefinition beanDefinition = this.getBeanDefinition(name);
+        if (ObjectUtil.isNull(beanDefinition)) {
+            if (ObjectUtil.isNull(parentBeanFactory)) {
+                throw new RuntimeException("输入的name有误！");
+            } else {
+                // 没找到就去父 bf 中找
+                return parentBeanFactory.isSingleton(name);
+            }
+        }
+        return beanDefinition.getScope() == BeanDefinition.ScopeEnum.SINGLETON;
     }
 
     /**

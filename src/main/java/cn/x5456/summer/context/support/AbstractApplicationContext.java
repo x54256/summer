@@ -1,13 +1,16 @@
-package cn.x5456.summer.beans.factory.support;
+package cn.x5456.summer.context.support;
 
-import cn.x5456.summer.beans.*;
-import cn.x5456.summer.beans.factory.ApplicationContext;
-import cn.x5456.summer.beans.factory.ApplicationListener;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.context.*;
 
 import java.util.Map;
 
 /**
+ * 这个类采用了模版方法模式，定义了 ApplicationContext 的初始化流程，
+ * 它留下了2个方法 refreshBeanFactory() 和 getBeanFactory() 由子类实现
+ *
+ * 注意：ListableBeanFactory 接口的方法，不会考虑父容器
+ *
  * @author yujx
  * @date 2020/04/15 10:39
  */
@@ -35,6 +38,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public void refresh() {
 
+        // 初始化 BF，生成 BF，好在调用 getBeanFactory() 时返回
         this.refreshBeanFactory();
 
         // 初始化单例对象，如果实现了 ApplicationContextAware 则为其注入应用上下文
@@ -51,7 +55,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     }
 
     /**
-     * 刷新 BF
+     * 初始化当前 ApplicationContext 的 BF
      */
     protected abstract void refreshBeanFactory();
 
@@ -71,7 +75,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     }
 
     /**
-     * 注册 listener
+     * 刷新 listener，将listener注册到事件广播器
      */
     private void refreshListeners() {
         Map<String, ApplicationListener> beansOfType = this.getBeansOfType(ApplicationListener.class);
@@ -155,12 +159,22 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         return bean;
     }
 
+    /**
+     * 根据名称获取它是否是单例（直接朋友，最少知道原则）
+     */
+    @Override
+    public boolean isSingleton(String name) {
+        return this.getBeanFactory().isSingleton(name);
+    }
+
+    // ------> 自定义方法，留着子类调用/实现
+
     protected void setParent(ApplicationContext ac) {
         this.parent = ac;
     }
 
     /**
-     * 获取 BF
+     * 获取当前 ApplicationContext 的 BF
      */
     protected abstract ListableBeanFactory getBeanFactory();
 }

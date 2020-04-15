@@ -3,7 +3,7 @@ package cn.x5456.summer.beans.factory.support;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import cn.x5456.summer.beans.factory.BeanFactory;
-import cn.x5456.summer.beans.factory.config.impl.DefaultBeanDefinition;
+import cn.x5456.summer.beans.DefaultBeanDefinition;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;

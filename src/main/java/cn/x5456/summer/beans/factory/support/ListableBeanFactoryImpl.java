@@ -3,7 +3,7 @@ package cn.x5456.summer.beans.factory.support;
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
-import cn.x5456.summer.beans.factory.config.BeanDefinition;
+import cn.x5456.summer.beans.BeanDefinition;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,6 +1,4 @@
-package cn.x5456.summer.beans;
-
-import cn.x5456.summer.beans.factory.ApplicationListener;
+package cn.x5456.summer.context;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -50,8 +48,19 @@ public class ApplicationEventMulticasterImpl implements ApplicationEventMulticas
     @SuppressWarnings("all")
     public void multicastEvent(ApplicationEvent event) {
         // 把 Listener 的泛型擦除了，才可以调用。。Java的泛型是真恶心
-        for (ApplicationListener applicationListener : listenerSet) {
+        for (ApplicationListener applicationListener : this.getApplicationListeners(event)) {
             applicationListener.onApplicationEvent(event);
         }
+    }
+
+    private Set<ApplicationListener<?>> getApplicationListeners(ApplicationEvent event) {
+        HashSet<ApplicationListener<?>> set = new HashSet<>();
+
+        for (ApplicationListener<?> applicationListener : listenerSet) {
+            if (applicationListener.getEventType().isAssignableFrom(event.getClass())) {
+                set.add(applicationListener);
+            }
+        }
+        return set;
     }
 }

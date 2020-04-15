@@ -1,6 +1,6 @@
 package cn.x5456.summer;
 
-import cn.x5456.summer.beans.factory.support.FileSystemJsonApplicationContext;
+import cn.x5456.summer.context.support.FileSystemJsonApplicationContext;
 
 /**
  * @author yujx

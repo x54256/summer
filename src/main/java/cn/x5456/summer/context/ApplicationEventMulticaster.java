@@ -1,6 +1,4 @@
-package cn.x5456.summer.beans;
-
-import cn.x5456.summer.beans.factory.ApplicationListener;
+package cn.x5456.summer.context;
 
 /**
  * 保存监听器的容器，当事件触发时调用他们

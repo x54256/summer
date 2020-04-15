@@ -1,6 +1,6 @@
-package cn.x5456.summer.beans.factory;
+package cn.x5456.summer.context;
 
-import cn.x5456.summer.beans.ApplicationEvent;
+import cn.x5456.summer.beans.factory.ListableBeanFactory;
 
 /**
  * 应用上下文接口（Spring 0.9 中还继承了一个国际化相关的接口）
@@ -21,7 +21,7 @@ public interface ApplicationContext extends ListableBeanFactory {
     void refresh();
 
     /**
-     * 通知事件监听器触发了一个事件
+     * 触发一个事件
      */
     void publishEvent(ApplicationEvent event);
 }

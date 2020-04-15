@@ -1,6 +1,4 @@
-package cn.x5456.summer.beans.factory.config.impl;
-
-import cn.x5456.summer.beans.factory.config.BeanDefinition;
+package cn.x5456.summer.beans;
 
 /**
  * 默认实现（Spring 中有两个实现 RootBD 和 ChildBD 其中 ChildBD 我们基本用不到）
