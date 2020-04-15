@@ -1,6 +1,7 @@
 package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.beans.factory.config.BeanDefinition;
 
@@ -17,6 +18,13 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 
     // key：名字 value：bean 的信息
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
+
+    public ListableBeanFactoryImpl() {
+    }
+
+    public ListableBeanFactoryImpl(BeanFactory parentBeanFactory) {
+        super(parentBeanFactory);
+    }
 
     /**
      * 注册 bean 的信息

@@ -16,14 +16,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
+    // 父 BF 为了应对多个 xml 配置文件的情况
+    // 这是不是组合模式啊。
+    private BeanFactory parentBeanFactory;
+
     // key：名字 value：单例对象
     private final Map<String, Object> sharedInstanceCache = new ConcurrentHashMap<>();
+
+    public AbstractBeanFactory() {
+    }
+
+    public AbstractBeanFactory(BeanFactory parentBeanFactory) {
+        this.parentBeanFactory = parentBeanFactory;
+    }
 
     /**
      * 根据名称获取对应的 bean （工厂方法模式）
      */
     @Override
     public Object getBean(String name) {
+
+        // -> 递归结束条件1
         if (sharedInstanceCache.containsKey(name)) {
             return sharedInstanceCache.get(name);
         }
@@ -31,7 +44,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         // 获取 bean 的属性信息
         BeanDefinition beanDefinition = this.getBeanDefinition(name);
         if (ObjectUtil.isNull(beanDefinition)) {
-            throw new RuntimeException("获取的bean不存在！");
+            if (ObjectUtil.isNull(parentBeanFactory)) {
+                // -> 递归结束条件3
+                throw new RuntimeException("获取的bean不存在！");
+            } else {
+                // -> 这相当于递归
+                // 这里可以直接 return，因为已经再父 BF 中的缓存里了
+                return parentBeanFactory.getBean(name);
+            }
         }
 
         Object bean = this.createBean(beanDefinition);
@@ -39,6 +59,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         if (beanDefinition.getScope().equals(BeanDefinition.ScopeEnum.SINGLETON)) {
             sharedInstanceCache.put(name, bean);
         }
+        // -> 递归结束条件2
         return bean;
     }
 
