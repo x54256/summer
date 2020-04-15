@@ -90,6 +90,19 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public void publishEvent(ApplicationEvent event) {
         eventMulticaster.multicastEvent(event);
+        if (parent != null) {
+            parent.publishEvent(event);
+        }
+    }
+
+    // ------> ListableBeanFactory 接口的方法，不会考虑父容器（我也不知道它为啥不考虑，搞不懂）
+
+    /**
+     * 获取容器中所有的 bd 的 name
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return this.getBeanFactory().getBeanDefinitionNames();
     }
 
     /**
@@ -111,6 +124,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         }
         return beansOfType;
     }
+
+    // ------> BeanFactory 接口的方法，会考虑父容器
 
     /**
      * 根据名称获取对应的 bean（工厂方法模式）
@@ -138,14 +153,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         T bean = this.getBeanFactory().getBean(name, requiredType);
         this.configureManagedObject(bean);
         return bean;
-    }
-
-    /**
-     * 获取容器中所有的 bd 的 name
-     */
-    @Override
-    public String[] getBeanDefinitionNames() {
-        return this.getBeanFactory().getBeanDefinitionNames();
     }
 
     protected void setParent(ApplicationContext ac) {
