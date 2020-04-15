@@ -81,10 +81,15 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     /**
+     * 根据名称获取它是否是单例（直接朋友，最少知道原则）
+     */
+    @Override
+    public boolean isSingleton(String name) {
+        return this.getBeanDefinition(name).getScope() == BeanDefinition.ScopeEnum.SINGLETON;
+    }
+
+    /**
      * 根据名称获取 bd （子类实现）
-     *
-     * @param beanName
-     * @return
      */
     protected abstract BeanDefinition getBeanDefinition(String beanName);
 }

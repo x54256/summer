@@ -48,6 +48,14 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
     }
 
     /**
+     * 获取容器中所有的 bd 的 name
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return beanDefinitionMap.keySet().toArray(new String[0]);
+    }
+
+    /**
      * 根据类型获取容器中所有这个类型的名字
      */
     @Override

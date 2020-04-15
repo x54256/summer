@@ -2,6 +2,7 @@ package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.config.impl.DefaultBeanDefinition;
 
 import java.io.File;
@@ -19,6 +20,13 @@ import java.util.List;
 public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
 
     public JsonBeanFactoryImpl(String fileName) {
+        JSONArray jsonArray = JSONUtil.readJSONArray(new File(fileName), StandardCharsets.UTF_8);
+        this.loadBeanDefinitions(jsonArray);
+    }
+
+    public JsonBeanFactoryImpl(String fileName, BeanFactory parentBeanFactory) {
+        super(parentBeanFactory);
+
         JSONArray jsonArray = JSONUtil.readJSONArray(new File(fileName), StandardCharsets.UTF_8);
         this.loadBeanDefinitions(jsonArray);
     }

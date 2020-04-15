@@ -17,4 +17,9 @@ public interface BeanFactory {
      * 根据名称和它的类型获取对应的 bean
      */
     <T> T getBean(String name, Class<T> requiredType);
+
+    /**
+     * 根据名称获取它是否是单例（直接朋友，最少知道原则）
+     */
+    boolean isSingleton(String name);
 }
