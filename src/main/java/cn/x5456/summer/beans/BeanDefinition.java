@@ -32,6 +32,10 @@ public interface BeanDefinition {
 
     void setScope(ScopeEnum scope);
 
+    String getInitMethod();
+
+    void setInitMethod(String initMethod);
+
 
     enum ScopeEnum {
         SINGLETON,

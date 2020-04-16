@@ -63,9 +63,25 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return bean;
     }
 
-    // 根据 bd 创建对象
+    /**
+     * 根据 bd 创建对象
+     *
+     * 1）创建bean 日后需要对有参构造进行扩展
+     * 2）注入属性  日后新增
+     * 3）执行初始化操作
+     */
     private Object createBean(BeanDefinition beanDefinition) {
-        return ReflectUtil.newInstance(beanDefinition.getClassName());
+
+        // 1、创建 bean
+        Object bean = ReflectUtil.newInstance(beanDefinition.getClassName());
+
+        // 2、注入属性 todo
+
+        // 3、执行初始化操作（在 Spring 中是直接调用的该类中的 initializeBean 方法，为了让他面向对象一点，我给他抽出一个类）
+        InitializeBeanHandler initializeBeanHandler = new InitializeBeanHandler(bean, beanDefinition);
+        initializeBeanHandler.initBean();
+
+        return bean;
     }
 
 

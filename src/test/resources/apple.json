@@ -1,5 +1,5 @@
 [
-{"name":"apple","className":"cn.x5456.summer.Apple"},
+{"name":"apple","className":"cn.x5456.summer.Apple","initMethod":"init"},
 {"name":"apple2","className":"cn.x5456.summer.Apple"},
 {"name":"apple3","className":"cn.x5456.summer.Apple"},
 {"name":"testListener","className":"cn.x5456.summer.TestListener"}

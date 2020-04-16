@@ -17,6 +17,8 @@ public class DefaultBeanDefinition implements BeanDefinition {
     // 生命周期
     private ScopeEnum scope = ScopeEnum.SINGLETON;
 
+    private String initMethod;
+
     /**
      * 名称
      */
@@ -57,5 +59,15 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void setScope(ScopeEnum scope) {
         this.scope = scope;
+    }
+
+    @Override
+    public String getInitMethod() {
+        return initMethod;
+    }
+
+    @Override
+    public void setInitMethod(String initMethod) {
+        this.initMethod = initMethod;
     }
 }
