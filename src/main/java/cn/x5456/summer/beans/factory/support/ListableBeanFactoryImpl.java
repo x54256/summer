@@ -31,20 +31,6 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
      */
     protected final void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(name, beanDefinition);
-
-        // 将相同类型的beanName放入 allBeanNamesByType 中
-        String className = beanDefinition.getClassName();
-        Class<?> type = this.getType(className);
-    }
-
-    // 根据全类名获取类型
-    private Class<?> getType(String className) {
-        try {
-            return Thread.currentThread().getContextClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 
     /**

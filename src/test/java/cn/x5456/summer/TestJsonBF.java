@@ -11,7 +11,6 @@ public class TestJsonBF {
     public static void main(String[] args) {
         ListableBeanFactory bf = new JsonBeanFactoryImpl("/Users/x5456/IdeaProjects/Summer/src/test/resources/apple.json");
         Apple apple = bf.getBean("apple", Apple.class);
-
-        bf.destroySingletons();
+        System.out.println(apple);
     }
 }

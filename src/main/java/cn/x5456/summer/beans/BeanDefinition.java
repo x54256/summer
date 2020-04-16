@@ -40,7 +40,13 @@ public interface BeanDefinition {
 
     void setDestroyMethod(String destroyMethod);
 
+    String getFactoryBean();
 
+    void setFactoryBean(String factoryBean);
+
+    String getFactoryMethod();
+
+    void setFactoryMethod(String factoryMethod);
 
     enum ScopeEnum {
         SINGLETON,

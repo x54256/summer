@@ -1,8 +1,11 @@
 [
   {
+    "name": "appleFactory",
+    "className": "cn.x5456.summer.AppleFactory"
+  },
+  {
     "name": "apple",
-    "className": "cn.x5456.summer.Apple",
-    "initMethod": "init",
-    "destroyMethod": "destroyMethod"
+    "factoryBean": "appleFactory",
+    "factoryMethod": "createApple"
   }
 ]

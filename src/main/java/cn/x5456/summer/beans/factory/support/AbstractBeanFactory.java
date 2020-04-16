@@ -79,7 +79,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private Object createBean(BeanDefinition beanDefinition) {
 
         // 1、创建 bean
-        Object bean = ReflectUtil.newInstance(beanDefinition.getClassName());
+        Object bean = this.createBeanInstance(beanDefinition);
 
         // 2、注入属性 todo
 
@@ -93,6 +93,25 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
 
         return bean;
+    }
+
+    /**
+     * 分两种情况
+     * <p>
+     * 1. 工厂方法（无参版）
+     * 2. 空参构造
+     */
+    private Object createBeanInstance(BeanDefinition beanDefinition) {
+        if (ObjectUtil.isNotNull(beanDefinition.getFactoryBean())) {
+            // 从容器中找到工厂对象
+            Object bean = this.getBean(beanDefinition.getFactoryBean());
+            if (ObjectUtil.isNull(bean)) {
+                throw new RuntimeException("工厂 bean 不存在！");
+            }
+            return ReflectUtil.invoke(bean, beanDefinition.getFactoryMethod());
+        }
+
+        return ReflectUtil.newInstance(beanDefinition.getClassName());
     }
 
     /**

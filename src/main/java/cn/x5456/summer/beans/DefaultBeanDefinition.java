@@ -21,6 +21,12 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     private String destroyMethod;
 
+    // 工厂类注册到容器中的 beanName
+    private String factoryBean;
+
+    // 工厂方法名
+    private String factoryMethod;
+
     /**
      * 名称
      */
@@ -81,5 +87,25 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void setDestroyMethod(String destroyMethod) {
         this.destroyMethod = destroyMethod;
+    }
+
+    @Override
+    public String getFactoryBean() {
+        return factoryBean;
+    }
+
+    @Override
+    public void setFactoryBean(String factoryBean) {
+        this.factoryBean = factoryBean;
+    }
+
+    @Override
+    public String getFactoryMethod() {
+        return factoryMethod;
+    }
+
+    @Override
+    public void setFactoryMethod(String factoryMethod) {
+        this.factoryMethod = factoryMethod;
     }
 }
