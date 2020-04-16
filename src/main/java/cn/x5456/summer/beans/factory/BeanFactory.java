@@ -22,4 +22,18 @@ public interface BeanFactory {
      * 根据名称获取它是否是单例（直接朋友，最少知道原则）
      */
     boolean isSingleton(String name);
+
+    /**
+     * 执行单例对象销毁方法
+     * <p>
+     * 那么原型的怎么办？
+     * <p>
+     * 原型对象在获取的时候会执行初始化操作，且不会执行销毁操作
+     * <p>
+     * Note: 在 Spring5.0 中，这个方法在 ConfigurableBeanFactory 中扩展，但是如果新增这个接口
+     * 会将类之间的逻辑变得十分复杂，有悖于我们做这个教程的初衷，所以采用 default 方法的方式，让 ABF
+     * 实现这个接口，而不用 AAP 实现这个接口
+     */
+    default void destroySingletons() {
+    }
 }

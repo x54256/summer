@@ -1,5 +1,6 @@
 package cn.x5456.summer.context.support;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
 
@@ -8,7 +9,7 @@ import java.util.Map;
 /**
  * 这个类采用了模版方法模式，定义了 ApplicationContext 的初始化流程，
  * 它留下了2个方法 refreshBeanFactory() 和 getBeanFactory() 由子类实现
- *
+ * <p>
  * 注意：ListableBeanFactory 接口的方法，不会考虑父容器
  *
  * @author yujx
@@ -21,6 +22,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     // 事件广播器
     private ApplicationEventMulticaster eventMulticaster = new ApplicationEventMulticasterImpl();
+
+    // 关闭钩子，防止意外关闭
+    private Thread shutdownHook = new Thread(AbstractApplicationContext.this::doClose);
 
     /**
      * 返回父级上下文；如果没有父级，则返回null
@@ -52,6 +56,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
         // 触发事件
         this.publishEvent(new ContextRefreshedEvent(this));
+
+        // 注册关闭钩子
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     /**
@@ -98,6 +105,26 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             parent.publishEvent(event);
         }
     }
+
+    /**
+     * 关闭容器
+     */
+    @Override
+    public void close() {
+        // 执行关闭操作
+        this.doClose();
+
+        // 移除关闭钩子
+        if (ObjectUtil.isNotNull(shutdownHook)) {
+            Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
+        }
+    }
+
+    private void doClose() {
+        // 销毁单例的 bean
+        this.getBeanFactory().destroySingletons();
+    }
+
 
     // ------> ListableBeanFactory 接口的方法，不会考虑父容器（我也不知道它为啥不考虑，搞不懂）
 

@@ -19,6 +19,8 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     private String initMethod;
 
+    private String destroyMethod;
+
     /**
      * 名称
      */
@@ -69,5 +71,15 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void setInitMethod(String initMethod) {
         this.initMethod = initMethod;
+    }
+
+    @Override
+    public String getDestroyMethod() {
+        return destroyMethod;
+    }
+
+    @Override
+    public void setDestroyMethod(String destroyMethod) {
+        this.destroyMethod = destroyMethod;
     }
 }

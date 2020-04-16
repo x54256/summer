@@ -36,6 +36,11 @@ public interface BeanDefinition {
 
     void setInitMethod(String initMethod);
 
+    String getDestroyMethod();
+
+    void setDestroyMethod(String destroyMethod);
+
+
 
     enum ScopeEnum {
         SINGLETON,

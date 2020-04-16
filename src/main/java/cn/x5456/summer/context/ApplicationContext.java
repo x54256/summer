@@ -24,4 +24,9 @@ public interface ApplicationContext extends ListableBeanFactory {
      * 触发一个事件
      */
     void publishEvent(ApplicationEvent event);
+
+    /**
+     * 关闭容器
+     */
+    void close();
 }

@@ -1,33 +1,36 @@
-package cn.x5456.summer.beans.factory.support;
+package cn.x5456.summer.beans.factory;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
-import cn.x5456.summer.beans.factory.InitializingBean;
+import cn.x5456.summer.util.ReflectUtils;
 
 import javax.annotation.PostConstruct;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
+ * 适配器模式，将 bean 适配成 InitializingBean
+ *
  * @author yujx
  * @date 2020/04/16 10:19
  */
-public final class InitializeBeanHandler {
+public class InitializeBeanAdapter implements InitializingBean {
 
     private Object bean;
 
     private BeanDefinition bd;
 
-    public InitializeBeanHandler(Object bean, BeanDefinition bd) {
+    public InitializeBeanAdapter(Object bean, BeanDefinition bd) {
         this.bean = bean;
         this.bd = bd;
     }
 
-    public void initBean() {
+
+    /**
+     * 设置所有提供的bean属性后，由BeanFactory调用。
+     */
+    @Override
+    public void afterPropertiesSet() {
 
         // 1、处理 @PostConstruct 注解，执行注解的方法（此处 Spring 是采用后置处理器实现的，为什么要采用这个实现，而不是直接调用呢？）
         this.postConstruct();
@@ -53,22 +56,8 @@ public final class InitializeBeanHandler {
     }
 
     private void postConstruct() {
-        for (Method method : this.getMethodOptional(bean.getClass(), PostConstruct.class)) {
+        for (Method method : ReflectUtils.getMethodsByAnnotation(bean.getClass(), PostConstruct.class)) {
             ReflectUtil.invoke(bean, method);
         }
-    }
-
-    private List<Method> getMethodOptional(Class<?> tClass, Class<? extends Annotation> annotationClass) {
-        Method[] methods = tClass.getMethods();
-
-        List<Method> matches = new ArrayList<>();
-        if (!ArrayUtil.isEmpty(methods)) {
-            for (Method method : methods) {
-                if (method.isAnnotationPresent(annotationClass)) {
-                    matches.add(method);
-                }
-            }
-        }
-        return matches;
     }
 }

@@ -1,14 +1,16 @@
 package cn.x5456.summer;
 
+import cn.x5456.summer.beans.factory.DisposableBean;
 import cn.x5456.summer.beans.factory.InitializingBean;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * @author yujx
  * @date 2020/04/14 15:40
  */
-public class Apple implements InitializingBean {
+public class Apple implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {
@@ -45,4 +47,19 @@ public class Apple implements InitializingBean {
                 "name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public void destroy() {
+        System.out.println("DisposableBean");
+    }
+
+    public void destroyMethod() {
+        System.out.println("destroyMethod");
+    }
+
+    @PreDestroy
+    public void func3() {
+        System.out.println("@PreDestroy");
+    }
+
 }

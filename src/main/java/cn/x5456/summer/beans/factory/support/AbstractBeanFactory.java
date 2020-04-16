@@ -1,10 +1,13 @@
 package cn.x5456.summer.beans.factory.support;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
-import cn.x5456.summer.beans.factory.BeanFactory;
+import cn.x5456.summer.beans.factory.*;
+import cn.x5456.summer.util.ReflectUtils;
 
+import javax.annotation.PreDestroy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,11 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractBeanFactory implements BeanFactory {
 
     // 父 BF 为了应对多个 xml 配置文件的情况
-    // 这是不是组合模式啊。
+    // 这是组合模式啊
     private BeanFactory parentBeanFactory;
 
     // key：名字 value：单例对象
     private final Map<String, Object> sharedInstanceCache = new ConcurrentHashMap<>();
+
+    private final DefaultSingletonBeanRegistry registry = new DefaultSingletonBeanRegistry();
 
     public AbstractBeanFactory() {
     }
@@ -65,10 +70,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     /**
      * 根据 bd 创建对象
-     *
+     * <p>
      * 1）创建bean 日后需要对有参构造进行扩展
      * 2）注入属性  日后新增
      * 3）执行初始化操作
+     * 4）注册销毁的处理
      */
     private Object createBean(BeanDefinition beanDefinition) {
 
@@ -78,12 +84,25 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         // 2、注入属性 todo
 
         // 3、执行初始化操作（在 Spring 中是直接调用的该类中的 initializeBean 方法，为了让他面向对象一点，我给他抽出一个类）
-        InitializeBeanHandler initializeBeanHandler = new InitializeBeanHandler(bean, beanDefinition);
-        initializeBeanHandler.initBean();
+        InitializeBeanAdapter initializeBeanAdapter = new InitializeBeanAdapter(bean, beanDefinition);
+        initializeBeanAdapter.afterPropertiesSet();
+
+        // 4、注册销毁的处理
+        if (this.check(beanDefinition, bean)) {
+            registry.registerDisposableBean(beanDefinition.getName(), new DisposableBeanAdapter(bean, beanDefinition));
+        }
 
         return bean;
     }
 
+    /**
+     * 检查是否具有销毁方法
+     */
+    private boolean check(BeanDefinition bd, Object bean) {
+        return ObjectUtil.isNotNull(bd.getDestroyMethod()) ||
+                bean instanceof DisposableBean ||
+                CollectionUtil.isNotEmpty(ReflectUtils.getMethodsByAnnotation(bean.getClass(), PreDestroy.class));
+    }
 
     /**
      * 根据名称和它的类型获取对应的 bean
@@ -111,6 +130,18 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             }
         }
         return beanDefinition.getScope() == BeanDefinition.ScopeEnum.SINGLETON;
+    }
+
+    /**
+     * 执行单例对象销毁方法
+     * <p>
+     * 那么原型的怎么办？
+     * <p>
+     * 原型对象在获取的时候会执行初始化操作，且不会执行销毁操作
+     */
+    @Override
+    public void destroySingletons() {
+        registry.destroySingletons();
     }
 
     /**
