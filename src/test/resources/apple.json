@@ -4,22 +4,7 @@
     "className": "cn.x5456.summer.AppleFactory"
   },
   {
-    "name": "apple",
-    "factoryBean": "appleFactory",
-    "factoryMethod": "createApple"
-  },
-  {
-    "name": "grape",
-    "className": "cn.x5456.summer.Grape",
-    "properties": [
-      {
-        "name": "name",
-        "type": "java.lang.String",
-        "value": "黑珍珠"
-      },{
-        "name": "apple",
-        "refName": "apple"
-      }
-    ]
+    "name": "initAnnotationBeanPostProcessor",
+    "className": "cn.x5456.summer.InitAnnotationBeanPostProcessor"
   }
 ]

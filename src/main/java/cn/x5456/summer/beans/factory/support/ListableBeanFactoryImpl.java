@@ -5,7 +5,10 @@ import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -53,16 +56,22 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 
         List<String> matches = new ArrayList<>();
 
-        Set<String> beanNames = beanDefinitionMap.keySet();
-        for (String beanName : beanNames) {
-            Object bean = super.getBean(beanName);
-            if (type.isAssignableFrom(bean.getClass())) {
+        beanDefinitionMap.forEach((beanName, bd) -> {
+            if (type.isAssignableFrom(this.getType(bd.getClassName()))) {
                 matches.add(beanName);
             }
-        }
-
+        });
         return matches.toArray(new String[0]);
     }
+
+    private Class<?> getType(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * 根据类型获取容器中所有该类型的对象

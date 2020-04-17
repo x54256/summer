@@ -1,6 +1,7 @@
 package cn.x5456.summer.context.support;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
 import cn.x5456.summer.BeanDefinitionRegistryPostProcessor;
@@ -219,6 +220,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     public boolean isSingleton(String name) {
         return this.getBeanFactory().isSingleton(name);
     }
+
+    // ------> BeanDefinitionRegistry
+
+    /**
+     * 注册 bd 到 bf
+     */
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
+        this.getBeanFactory().registerBeanDefinition(name, beanDefinition);
+    }
+
 
     // ------> 自定义方法，留着子类调用/实现
 

@@ -3,10 +3,6 @@ package cn.x5456.summer.beans.factory;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
-import cn.x5456.summer.util.ReflectUtils;
-
-import javax.annotation.PostConstruct;
-import java.lang.reflect.Method;
 
 /**
  * 适配器模式，将 bean 适配成 InitializingBean
@@ -28,12 +24,14 @@ public class InitializeBeanAdapter implements InitializingBean {
 
     /**
      * 设置所有提供的bean属性后，由BeanFactory调用。
+     *
+     * {@link cn.x5456.summer.InitAnnotationBeanPostProcessor}
      */
     @Override
     public void afterPropertiesSet() {
 
-        // 1、处理 @PostConstruct 注解，执行注解的方法（此处 Spring 是采用后置处理器实现的，为什么要采用这个实现，而不是直接调用呢？）
-        this.postConstruct();
+//        // 1、处理 @PostConstruct 注解，执行注解的方法（此处 Spring 是采用后置处理器实现的，为什么要采用这个实现，而不是直接调用呢？）
+//        this.postConstruct();
 
         // 2、如果该 bean 实现了 InitializingBean 接口，则调用
         this.initializingBean();
@@ -55,9 +53,9 @@ public class InitializeBeanAdapter implements InitializingBean {
         }
     }
 
-    private void postConstruct() {
-        for (Method method : ReflectUtils.getMethodsByAnnotation(bean.getClass(), PostConstruct.class)) {
-            ReflectUtil.invoke(bean, method);
-        }
-    }
+//    private void postConstruct() {
+//        for (Method method : ReflectUtils.getMethodsByAnnotation(bean.getClass(), PostConstruct.class)) {
+//            ReflectUtil.invoke(bean, method);
+//        }
+//    }
 }

@@ -13,6 +13,6 @@ public class TestJsonAP {
                 "/Users/x5456/IdeaProjects/Summer/src/test/resources/apple.json"
         });
 
-        fileSystemJsonApplicationContext.close();
+//        fileSystemJsonApplicationContext.close();
     }
 }
