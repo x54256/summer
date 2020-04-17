@@ -72,6 +72,7 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
     @Override
     protected void refreshBeanFactory() {
         beanFactory = new JsonBeanFactoryImpl(configLocation, super.getParent());
+
         // beanFactory 初始化完成后，向其中添加一个后置处理器
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }

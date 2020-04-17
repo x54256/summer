@@ -17,7 +17,6 @@ public class AppleFactory implements BeanNameAware, ApplicationContextAware {
     }
 
     public AppleFactory() {
-        System.out.println(123123);
     }
 
     @PostConstruct

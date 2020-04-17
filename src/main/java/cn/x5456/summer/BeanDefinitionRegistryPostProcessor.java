@@ -9,11 +9,6 @@ import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
  */
 public interface BeanDefinitionRegistryPostProcessor {
 
-    /**
-     * invokeBeanFactoryPostProcessors(beanFactory);
-     * <p>
-     * 先调用 postProcessBeanDefinitionRegistry 这个方法，然后再执行 BeanFactoryPostProcessor 中的方法
-     */
     void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry);
 
 }

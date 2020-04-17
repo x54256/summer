@@ -40,6 +40,5 @@ public interface BeanFactory {
     }
 
     default void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-
     }
 }
