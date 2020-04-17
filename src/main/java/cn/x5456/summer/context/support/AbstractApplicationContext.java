@@ -1,11 +1,11 @@
 package cn.x5456.summer.context.support;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.x5456.summer.BeanDefinitionRegistryPostProcessor;
+import cn.x5456.summer.BeanFactoryPostProcessor;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
-import cn.x5456.summer.BeanDefinitionRegistryPostProcessor;
-import cn.x5456.summer.BeanFactoryPostProcessor;
 
 import java.util.Map;
 
@@ -103,7 +103,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             if (this.getBeanFactory().isSingleton(bdName)) {
                 // 这句话会将其加入单例的 Map 中
                 Object bean = this.getBeanFactory().getBean(bdName);
-                this.configureManagedObject(bean);
+//                this.configureManagedObject(bean);
             }
         }
     }
@@ -177,9 +177,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public <T> Map<String, T> getBeansOfType(Class<T> type) {
         Map<String, T> beansOfType = this.getBeanFactory().getBeansOfType(type);
-        for (T bean : beansOfType.values()) {
-            this.configureManagedObject(bean);
-        }
+//        for (T bean : beansOfType.values()) {
+//            this.configureManagedObject(bean);
+//        }
         return beansOfType;
     }
 
@@ -191,17 +191,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public Object getBean(String name) {
         Object bean = this.getBeanFactory().getBean(name);
-        this.configureManagedObject(bean);
+//        this.configureManagedObject(bean);
         return bean;
     }
-
-    // 调用实现了 ApplicationContextAware 的 setApplicationContext 方法，注入应用上下文
-    private void configureManagedObject(Object o) {
-        if (o instanceof ApplicationContextAware) {
-            ApplicationContextAware aca = (ApplicationContextAware) o;
-            aca.setApplicationContext(this);
-        }
-    }
+//
+//    // 调用实现了 ApplicationContextAware 的 setApplicationContext 方法，注入应用上下文
+//    private void configureManagedObject(Object o) {
+//        if (o instanceof ApplicationContextAware) {
+//            ApplicationContextAware aca = (ApplicationContextAware) o;
+//            aca.setApplicationContext(this);
+//        }
+//    }
 
     /**
      * 根据名称和它的类型获取对应的 bean
@@ -209,7 +209,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public <T> T getBean(String name, Class<T> requiredType) {
         T bean = this.getBeanFactory().getBean(name, requiredType);
-        this.configureManagedObject(bean);
+//        this.configureManagedObject(bean);
         return bean;
     }
 

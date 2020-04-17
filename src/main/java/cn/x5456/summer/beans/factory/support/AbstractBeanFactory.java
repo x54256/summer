@@ -3,6 +3,8 @@ package cn.x5456.summer.beans.factory.support;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.x5456.summer.Aware;
+import cn.x5456.summer.BeanNameAware;
 import cn.x5456.summer.BeanPostProcessor;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.BeanWrapper;
@@ -82,7 +84,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      * <p>
      * 1）创建bean 日后需要对有参构造进行扩展
      * 2）注入属性（Spring 源码中 2 是在 3456 的后面）
-     * 3）调用部分 Aware 的方法 todo
+     * 3）调用部分 Aware 的方法
      * 4）后置处理器的前置方法
      * 5）执行初始化操作
      * 6）后置处理器的后置方法
@@ -99,8 +101,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         beanWrapper.setPropertyValues(propertyValueList);
         Object bean = beanWrapper.getWrappedInstance();
 
-        // 3、调用部分 Aware 的方法 todo
-
+        // 3、调用部分 Aware 的方法
+        this.invokeAwareMethod(bean, beanDefinition.getName());
 
         // 4、后置处理器的前置方法
         this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition.getName());
@@ -118,6 +120,15 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
 
         return bean;
+    }
+
+    private void invokeAwareMethod(Object bean, String beanName) {
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(beanName);
+            }
+            // else if () ...
+        }
     }
 
     // 后置方法

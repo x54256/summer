@@ -42,7 +42,5 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
         for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {
             super.addBeanPostProcessor(beanPostProcessor);
         }
-
-
     }
 }
