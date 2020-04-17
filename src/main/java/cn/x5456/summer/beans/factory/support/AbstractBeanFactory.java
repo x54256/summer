@@ -49,7 +49,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     /**
      * 根据名称获取对应的 bean （工厂方法模式）
      * <p>
-     * 注：没有对原型做处理，如果2个对象都是原型，则会进入死循环从而内存溢出
+     * 注：没有对原型做处理，如果2个对象都是原型，则会进入死循环从而堆栈溢出
      */
     @Override
     public Object getBean(String name) {
@@ -128,7 +128,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         BeanWrapper beanWrapper = this.createBeanInstance(beanDefinition);
 
         // 1.1 将还没有注入属性的 bean 放入二级缓存中
-        earlySingletonObjects.put(beanDefinition.getName(), beanWrapper.getWrappedInstance());
+        if (beanDefinition.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
+            earlySingletonObjects.put(beanDefinition.getName(), beanWrapper.getWrappedInstance());
+        }
 
         // 2、注入属性 DI （Spring 0.9 中当属性改变时会触发事件，但是默认是关闭的，暂时不知道它为了干啥）
         List<PropertyArgDefinition> properties = beanDefinition.getProperties();
