@@ -1,4 +1,4 @@
-package cn.x5456.summer.context.processors;
+package cn.x5456.summer;
 
 /**
  * BeanPostProcessor是spring框架的一个扩展的类点-后置处理器（有很多个）

@@ -3,6 +3,7 @@ package cn.x5456.summer.beans.factory.support;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.x5456.summer.BeanPostProcessor;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.BeanWrapper;
 import cn.x5456.summer.beans.PropertyArgDefinition;
@@ -11,7 +12,10 @@ import cn.x5456.summer.beans.factory.*;
 import cn.x5456.summer.util.ReflectUtils;
 
 import javax.annotation.PreDestroy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,6 +34,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private final Map<String, Object> sharedInstanceCache = new ConcurrentHashMap<>();
 
     private final DefaultSingletonBeanRegistry registry = new DefaultSingletonBeanRegistry();
+
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     public AbstractBeanFactory() {
     }
@@ -75,9 +81,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
      * 根据 bd 创建对象
      * <p>
      * 1）创建bean 日后需要对有参构造进行扩展
-     * 2）注入属性  日后新增
-     * 3）执行初始化操作
-     * 4）注册销毁的处理
+     * 2）注入属性（Spring 源码中 2 是在 3456 的后面）
+     * 3）调用部分 Aware 的方法 todo
+     * 4）后置处理器的前置方法
+     * 5）执行初始化操作
+     * 6）后置处理器的后置方法
+     * 7）注册销毁的处理
      */
     private Object createBean(BeanDefinition beanDefinition) {
 
@@ -90,16 +99,39 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         beanWrapper.setPropertyValues(propertyValueList);
         Object bean = beanWrapper.getWrappedInstance();
 
-        // 3、执行初始化操作（在 Spring 中是直接调用的该类中的 initializeBean 方法，为了让他面向对象一点，我给他抽出一个类）
+        // 3、调用部分 Aware 的方法 todo
+
+
+        // 4、后置处理器的前置方法
+        this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition.getName());
+
+        // 5、执行初始化操作（在 Spring 中是直接调用的该类中的 initializeBean 方法，为了让他面向对象一点，我给他抽出一个类）
         InitializeBeanAdapter initializeBeanAdapter = new InitializeBeanAdapter(bean, beanDefinition);
         initializeBeanAdapter.afterPropertiesSet();
 
-        // 4、注册销毁的处理
+        // 6、后置处理器的后置方法
+        this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition.getName());
+
+        // 7、注册销毁的处理
         if (this.check(beanDefinition, bean)) {
             registry.registerDisposableBean(beanDefinition.getName(), new DisposableBeanAdapter(bean, beanDefinition));
         }
 
         return bean;
+    }
+
+    // 后置方法
+    private void applyBeanPostProcessorsAfterInitialization(Object bean, String name) {
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            beanPostProcessor.postProcessAfterInitialization(bean, name);
+        }
+    }
+
+    // 前置方法
+    private void applyBeanPostProcessorsBeforeInitialization(Object bean, String name) {
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            beanPostProcessor.postProcessBeforeInitialization(bean, name);
+        }
     }
 
     private List<PropertyValue> parseProperties(List<PropertyArgDefinition> properties) {
@@ -198,6 +230,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     @Override
     public void destroySingletons() {
         registry.destroySingletons();
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        beanPostProcessors.add(beanPostProcessor);
     }
 
     /**

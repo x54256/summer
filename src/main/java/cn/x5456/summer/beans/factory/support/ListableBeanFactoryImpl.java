@@ -2,7 +2,6 @@ package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
-import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 
@@ -11,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ListableBeanFactory 工厂的实现，并负责维护 bd 信息
+ * <p>
+ * 注意：这个接口中的方法不会从父容器中获取数据的，使用时需要注意
  *
  * @author yujx
  * @date 2020/04/14 14:56

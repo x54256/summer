@@ -2,6 +2,7 @@ package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import cn.x5456.summer.BeanPostProcessor;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 
@@ -35,6 +36,11 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
         List<DefaultBeanDefinition> beanDefinitionList = jsonArray.toList(DefaultBeanDefinition.class);
         for (DefaultBeanDefinition bd : beanDefinitionList) {
             super.registerBeanDefinition(bd.getName(), bd);
+        }
+
+        // 向 beanPostProcessors 中添加后置处理器
+        for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {
+            super.addBeanPostProcessor(beanPostProcessor);
         }
     }
 }

@@ -1,5 +1,7 @@
 package cn.x5456.summer.beans.factory;
 
+import cn.x5456.summer.BeanPostProcessor;
+
 /**
  * 生产 bean 的工厂
  *
@@ -35,5 +37,9 @@ public interface BeanFactory {
      * 实现这个接口，而不用 AAP 实现这个接口
      */
     default void destroySingletons() {
+    }
+
+    default void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+
     }
 }

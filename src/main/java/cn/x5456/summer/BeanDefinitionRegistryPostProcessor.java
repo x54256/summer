@@ -1,4 +1,4 @@
-package cn.x5456.summer.context.processors;
+package cn.x5456.summer;
 
 import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
 

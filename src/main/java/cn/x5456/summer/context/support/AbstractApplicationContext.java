@@ -3,8 +3,8 @@ package cn.x5456.summer.context.support;
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
-import cn.x5456.summer.context.processors.BeanDefinitionRegistryPostProcessor;
-import cn.x5456.summer.context.processors.BeanFactoryPostProcessor;
+import cn.x5456.summer.BeanDefinitionRegistryPostProcessor;
+import cn.x5456.summer.BeanFactoryPostProcessor;
 
 import java.util.Map;
 
