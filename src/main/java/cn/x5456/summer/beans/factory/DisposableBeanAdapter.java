@@ -28,7 +28,7 @@ public class DisposableBeanAdapter implements DisposableBean {
      */
     @Override
     public void destroy() {
-        // 1、处理 @PreDestroy 注解，执行注解的方法（此处 Spring 是采用后置处理器实现的，为什么要采用这个实现，而不是直接调用呢？）
+        // 1、处理 @PreDestroy 注解，执行注解的方法（此处 Spring 是采用后置处理器【DestructionAwareBeanPostProcessor】实现的，为什么要采用这个实现，而不是直接调用呢？）
         this.postPreDestroy();
 
         // 2、如果该 bean 实现了 DisposableBean 接口，则调用

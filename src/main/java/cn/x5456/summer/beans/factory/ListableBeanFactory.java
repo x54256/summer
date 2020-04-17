@@ -12,7 +12,7 @@ import java.util.Map;
  * @author yujx
  * @date 2020/04/14 14:48
  */
-public interface ListableBeanFactory extends BeanFactory {
+public interface ListableBeanFactory extends BeanFactory, BeanDefinitionRegistry {
 
     /**
      * 获取容器中所有的 bd 的 name

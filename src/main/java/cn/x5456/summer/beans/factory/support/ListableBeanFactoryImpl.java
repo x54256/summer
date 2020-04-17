@@ -1,9 +1,10 @@
 package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.x5456.summer.beans.BeanDefinition;
+import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
-import cn.x5456.summer.beans.BeanDefinition;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +30,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
     /**
      * 注册 bean 的信息
      */
-    protected final void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(name, beanDefinition);
     }
 

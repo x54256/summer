@@ -3,8 +3,12 @@ package cn.x5456.summer.context.support;
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
+import cn.x5456.summer.context.processors.BeanDefinitionRegistryPostProcessor;
+import cn.x5456.summer.context.processors.BeanFactoryPostProcessor;
 
 import java.util.Map;
+
+;
 
 /**
  * 这个类采用了模版方法模式，定义了 ApplicationContext 的初始化流程，
@@ -45,6 +49,12 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         // 初始化 BF，生成 BF，好在调用 getBeanFactory() 时返回
         this.refreshBeanFactory();
 
+        // 执行 BeanDefinitionRegistryPostProcessor
+        this.invokeBeanDefinitionRegistryPostProcessors();
+
+        // 执行 BeanFactoryPostProcessor
+        this.invokeBeanFactoryPostProcessors();
+
         // 初始化单例对象，如果实现了 ApplicationContextAware 则为其注入应用上下文
         this.configureAllManagedObjects();
 
@@ -59,6 +69,22 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
         // 注册关闭钩子
         Runtime.getRuntime().addShutdownHook(shutdownHook);
+    }
+
+    private void invokeBeanFactoryPostProcessors() {
+        ListableBeanFactory beanFactory = this.getBeanFactory();
+
+        for (BeanFactoryPostProcessor beanFactoryPostProcessor : beanFactory.getBeansOfType(BeanFactoryPostProcessor.class).values()) {
+            beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+        }
+    }
+
+    private void invokeBeanDefinitionRegistryPostProcessors() {
+        ListableBeanFactory beanFactory = this.getBeanFactory();
+
+        for (BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor : beanFactory.getBeansOfType(BeanDefinitionRegistryPostProcessor.class).values()) {
+            beanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry(beanFactory);
+        }
     }
 
     /**
