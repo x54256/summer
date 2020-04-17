@@ -1,5 +1,7 @@
 package cn.x5456.summer.beans;
 
+import java.util.List;
+
 /**
  * 默认实现（Spring 中有两个实现 RootBD 和 ChildBD 其中 ChildBD 我们基本用不到）
  *
@@ -26,6 +28,9 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     // 工厂方法名
     private String factoryMethod;
+
+    // 属性参数列表
+    private List<PropertyArgDefinition> properties;
 
     /**
      * 名称
@@ -107,5 +112,15 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void setFactoryMethod(String factoryMethod) {
         this.factoryMethod = factoryMethod;
+    }
+
+    @Override
+    public List<PropertyArgDefinition> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public void setProperties(List<PropertyArgDefinition> properties) {
+        this.properties = properties;
     }
 }

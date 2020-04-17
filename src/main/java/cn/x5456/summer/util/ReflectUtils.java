@@ -3,6 +3,7 @@ package cn.x5456.summer.util;
 import cn.hutool.core.util.ArrayUtil;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,17 @@ public final class ReflectUtils {
         }
         return matches;
     }
+
+    public static <T> T string2BasicType(String val, Class<T> type) {
+        try {
+            Constructor<T> constructor = type.getConstructor(String.class);
+            constructor.setAccessible(true);
+            return constructor.newInstance(val);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private ReflectUtils() {
     }

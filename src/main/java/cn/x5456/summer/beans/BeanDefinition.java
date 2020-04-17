@@ -1,5 +1,7 @@
 package cn.x5456.summer.beans;
 
+import java.util.List;
+
 /**
  * bean 的属性
  *
@@ -47,6 +49,10 @@ public interface BeanDefinition {
     String getFactoryMethod();
 
     void setFactoryMethod(String factoryMethod);
+
+    List<PropertyArgDefinition> getProperties();
+
+    void setProperties(List<PropertyArgDefinition> properties);
 
     enum ScopeEnum {
         SINGLETON,

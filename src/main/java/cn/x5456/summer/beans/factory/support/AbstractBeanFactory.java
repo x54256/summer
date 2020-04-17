@@ -4,11 +4,14 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
+import cn.x5456.summer.beans.BeanWrapper;
+import cn.x5456.summer.beans.PropertyArgDefinition;
+import cn.x5456.summer.beans.PropertyValue;
 import cn.x5456.summer.beans.factory.*;
 import cn.x5456.summer.util.ReflectUtils;
 
 import javax.annotation.PreDestroy;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -79,9 +82,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private Object createBean(BeanDefinition beanDefinition) {
 
         // 1、创建 bean
-        Object bean = this.createBeanInstance(beanDefinition);
+        BeanWrapper beanWrapper = this.createBeanInstance(beanDefinition);
 
-        // 2、注入属性 todo
+        // 2、注入属性 DI （Spring 0.9 中当属性改变时会触发事件，但是默认是关闭的，暂时不知道它为了干啥）
+        List<PropertyArgDefinition> properties = beanDefinition.getProperties();
+        List<PropertyValue> propertyValueList = this.parseProperties(properties);
+        beanWrapper.setPropertyValues(propertyValueList);
+        Object bean = beanWrapper.getWrappedInstance();
 
         // 3、执行初始化操作（在 Spring 中是直接调用的该类中的 initializeBean 方法，为了让他面向对象一点，我给他抽出一个类）
         InitializeBeanAdapter initializeBeanAdapter = new InitializeBeanAdapter(bean, beanDefinition);
@@ -95,23 +102,53 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return bean;
     }
 
+    private List<PropertyValue> parseProperties(List<PropertyArgDefinition> properties) {
+
+        if (CollectionUtil.isEmpty(properties)) {
+            return Collections.emptyList();
+        }
+
+        List<PropertyValue> propertyValueList = new ArrayList<>(properties.size());
+
+        for (PropertyArgDefinition property : properties) {
+            String propertyName = property.getName();
+            String refBeanName = property.getRefName();
+            if (ObjectUtil.isNotNull(refBeanName)) {
+                Object refBean = this.getBean(refBeanName);
+                PropertyValue propertyValue = new PropertyValue(propertyName, refBean);
+                propertyValueList.add(propertyValue);
+            } else {
+                String value = property.getValue();
+                try {
+                    Class<?> clazz = Class.forName(property.getType());
+                    PropertyValue propertyValue = new PropertyValue(propertyName, ReflectUtils.string2BasicType(value, clazz));
+                    propertyValueList.add(propertyValue);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        return propertyValueList;
+    }
+
     /**
      * 分两种情况
      * <p>
      * 1. 工厂方法（无参版）
      * 2. 空参构造
      */
-    private Object createBeanInstance(BeanDefinition beanDefinition) {
+    private BeanWrapper createBeanInstance(BeanDefinition beanDefinition) {
         if (ObjectUtil.isNotNull(beanDefinition.getFactoryBean())) {
             // 从容器中找到工厂对象
             Object bean = this.getBean(beanDefinition.getFactoryBean());
             if (ObjectUtil.isNull(bean)) {
                 throw new RuntimeException("工厂 bean 不存在！");
             }
-            return ReflectUtil.invoke(bean, beanDefinition.getFactoryMethod());
+            return new BeanWrapper(ReflectUtil.invoke(bean, beanDefinition.getFactoryMethod()));
         }
 
-        return ReflectUtil.newInstance(beanDefinition.getClassName());
+        return new BeanWrapper(ReflectUtil.newInstance(beanDefinition.getClassName()));
     }
 
     /**
