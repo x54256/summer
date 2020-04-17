@@ -1,0 +1,22 @@
+[
+  {
+    "name": "a",
+    "className": "cn.x5456.summer.A",
+    "properties": [
+      {
+        "name": "b",
+        "refName": "b"
+      }
+    ]
+  },
+  {
+    "name": "b",
+    "className": "cn.x5456.summer.B",
+    "properties": [
+      {
+        "name": "a",
+        "refName": "a"
+      }
+    ]
+  }
+]

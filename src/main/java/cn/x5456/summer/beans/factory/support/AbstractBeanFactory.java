@@ -14,10 +14,7 @@ import cn.x5456.summer.beans.factory.*;
 import cn.x5456.summer.util.ReflectUtils;
 
 import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,6 +32,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     // key：名字 value：单例对象
     private final Map<String, Object> sharedInstanceCache = new ConcurrentHashMap<>();
 
+    // 二级缓存：维护早期暴露的Bean(只进行了实例化，并未进行属性注入)
+    private final Map<String, Object> earlySingletonObjects = new HashMap<>();
+
     private final DefaultSingletonBeanRegistry registry = new DefaultSingletonBeanRegistry();
 
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
@@ -48,35 +48,67 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     /**
      * 根据名称获取对应的 bean （工厂方法模式）
+     * <p>
+     * 注：没有对原型做处理，如果2个对象都是原型，则会进入死循环从而内存溢出
      */
     @Override
     public Object getBean(String name) {
 
-        // -> 递归结束条件1
+        // 先从一级缓存中获取
         if (sharedInstanceCache.containsKey(name)) {
             return sharedInstanceCache.get(name);
         }
 
-        // 获取 bean 的属性信息
-        BeanDefinition beanDefinition = this.getBeanDefinition(name);
-        if (ObjectUtil.isNull(beanDefinition)) {
-            if (ObjectUtil.isNull(parentBeanFactory)) {
-                // -> 递归结束条件3
-                throw new RuntimeException("获取的bean不存在！");
-            } else {
-                // -> 这相当于递归
-                // 这里可以直接 return，因为已经再父 BF 中的缓存里了
-                return parentBeanFactory.getBean(name);
-            }
+        // 如果一级缓存中没有，则从二级缓存中获取（防止循环引用）
+        if (earlySingletonObjects.containsKey(name)) {
+            return earlySingletonObjects.get(name);
         }
 
-        Object bean = this.createBean(beanDefinition);
-        // 如果该对象是单例的，则加入到缓存中。
-        if (beanDefinition.getScope().equals(BeanDefinition.ScopeEnum.SINGLETON)) {
-            sharedInstanceCache.put(name, bean);
+        // 如果二级缓存中没有，则获取 bd 创建
+        BeanDefinition bd = this.getBeanDefinition(name);
+        if (ObjectUtil.isNotNull(bd)) {
+            Object bean = this.createBean(bd);
+            // 判断是否是单例，如果是则加入一级缓存中
+            if (bd.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
+                sharedInstanceCache.put(bd.getName(), bean);
+            }
+            return bean;
         }
-        // -> 递归结束条件2
-        return bean;
+
+        // 如果 bd 为空，而且没有父 bf，则抛出异常
+        if (ObjectUtil.isNull(parentBeanFactory)) {
+            throw new RuntimeException("获取的bean不存在！");
+        }
+
+        // 从父 bf 中获取
+        return parentBeanFactory.getBean(name);
+
+
+//        // -> 递归结束条件1
+//        if (sharedInstanceCache.containsKey(name)) {
+//            return sharedInstanceCache.get(name);
+//        }
+//
+//        // 获取 bean 的属性信息
+//        BeanDefinition beanDefinition = this.getBeanDefinition(name);
+//        if (ObjectUtil.isNull(beanDefinition)) {
+//            if (ObjectUtil.isNull(parentBeanFactory)) {
+//                // -> 递归结束条件3
+//                throw new RuntimeException("获取的bean不存在！");
+//            } else {
+//                // -> 这相当于递归
+//                // 这里可以直接 return，因为已经再父 BF 中的缓存里了
+//                return parentBeanFactory.getBean(name);
+//            }
+//        }
+//
+//        Object bean = this.createBean(beanDefinition);
+//        // 如果该对象是单例的，则加入到缓存中。
+//        if (beanDefinition.getScope().equals(BeanDefinition.ScopeEnum.SINGLETON)) {
+//            sharedInstanceCache.put(name, bean);
+//        }
+//        // -> 递归结束条件2
+//        return bean;
     }
 
     /**
@@ -94,6 +126,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
         // 1、创建 bean
         BeanWrapper beanWrapper = this.createBeanInstance(beanDefinition);
+
+        // 1.1 将还没有注入属性的 bean 放入二级缓存中
+        earlySingletonObjects.put(beanDefinition.getName(), beanWrapper.getWrappedInstance());
 
         // 2、注入属性 DI （Spring 0.9 中当属性改变时会触发事件，但是默认是关闭的，暂时不知道它为了干啥）
         List<PropertyArgDefinition> properties = beanDefinition.getProperties();
