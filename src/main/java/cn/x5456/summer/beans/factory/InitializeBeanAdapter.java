@@ -42,7 +42,7 @@ public class InitializeBeanAdapter implements InitializingBean {
 
     private void customInit() {
         String initMethod = bd.getInitMethod();
-        if (ObjectUtil.isNotNull(initMethod)) {
+        if (ObjectUtil.isNotEmpty(initMethod)) {
             ReflectUtil.invoke(bean, initMethod);
         }
     }

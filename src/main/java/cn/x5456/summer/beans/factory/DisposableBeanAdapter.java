@@ -40,7 +40,7 @@ public class DisposableBeanAdapter implements DisposableBean {
 
     private void customDestroy() {
         String destroyMethod = bd.getDestroyMethod();
-        if (ObjectUtil.isNotNull(destroyMethod)) {
+        if (ObjectUtil.isNotEmpty(destroyMethod)) {
             ReflectUtil.invoke(bean, destroyMethod);
         }
     }

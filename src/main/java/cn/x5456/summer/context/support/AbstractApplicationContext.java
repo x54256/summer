@@ -231,6 +231,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         this.getBeanFactory().registerBeanDefinition(name, beanDefinition);
     }
 
+    /**
+     * 根据 bdName 获取 bd
+     */
+    @Override
+    public BeanDefinition getBeanDefinition(String name) {
+        return this.getBeanFactory().getBeanDefinition(name);
+    }
 
     // ------> 自定义方法，留着子类调用/实现
 

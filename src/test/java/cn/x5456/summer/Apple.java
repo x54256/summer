@@ -1,13 +1,19 @@
 package cn.x5456.summer;
 
-import cn.x5456.summer.stereotype.Component;
+import cn.x5456.summer.stereotype.Bean;
+import cn.x5456.summer.stereotype.Configuration;
 
 /**
  * @author yujx
  * @date 2020/04/14 15:40
  */
-@Component
+@Configuration
 public class Apple {
+
+    @Bean
+    public Grape func() {
+        return new Grape();
+    }
 
     private String name = "红富士";
 

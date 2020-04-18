@@ -41,4 +41,12 @@ public final class ReflectUtils {
 
     private ReflectUtils() {
     }
+
+    public static Class<?> getType(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

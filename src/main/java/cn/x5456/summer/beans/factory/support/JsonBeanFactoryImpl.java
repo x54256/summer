@@ -1,5 +1,6 @@
 package cn.x5456.summer.beans.factory.support;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ClassUtil;
@@ -53,9 +54,9 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
             for (String packageName : scanPackageNames) {
                 Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
                 for (Class<?> clazz : classes) {
-                    // 判断是否具有 @Component 注解
-                    Component component = clazz.getAnnotation(Component.class);
-                    if (ObjectUtil.isNotNull(component)) {
+                    // 判断是否具有 @Component 注解，并且本身不是注解
+                    Component component = AnnotationUtil.getAnnotation(clazz, Component.class);
+                    if (ObjectUtil.isNotNull(component) && !clazz.isAnnotation()) {
                         DefaultBeanDefinition bd = new DefaultBeanDefinition();
 
                         String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());

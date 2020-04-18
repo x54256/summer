@@ -13,6 +13,8 @@ public class TestJsonAP {
                 "/Users/x5456/IdeaProjects/Summer/src/test/resources/apple.json"
         });
 
+        System.out.println(fileSystemJsonApplicationContext.getBean("apple"));
+        System.out.println(fileSystemJsonApplicationContext.getBean("func"));
 //        fileSystemJsonApplicationContext.close();
     }
 }

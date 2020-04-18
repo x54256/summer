@@ -1,10 +1,13 @@
 package cn.x5456.summer.beans.factory.support;
 
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.util.ReflectUtils;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,18 +60,33 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
         List<String> matches = new ArrayList<>();
 
         beanDefinitionMap.forEach((beanName, bd) -> {
-            if (type.isAssignableFrom(this.getType(bd.getClassName()))) {
+            Class<?> beanType;
+
+            String className = bd.getClassName();
+            if (ObjectUtil.isNotEmpty(className)) {
+                beanType = ReflectUtils.getType(className);
+            } else {
+                beanType = this.factoryMethodReturnType(bd);
+            }
+
+            if (type.isAssignableFrom(beanType)) {
                 matches.add(beanName);
             }
         });
         return matches.toArray(new String[0]);
     }
 
-    private Class<?> getType(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+    public Class<?> factoryMethodReturnType(BeanDefinition bd) {
+        String factoryBeanName = bd.getFactoryBean();
+        String factoryMethod = bd.getFactoryMethod();
+
+        BeanDefinition factoryBD = this.getBeanDefinition(factoryBeanName);
+        String factoryClassName = factoryBD.getClassName();
+        if (ObjectUtil.isNotEmpty(factoryBD)) {
+            Method method = ClassUtil.getDeclaredMethod(ReflectUtils.getType(factoryClassName), factoryMethod);
+            return method.getReturnType();
+        } else {
+            return this.factoryMethodReturnType(bd);
         }
     }
 
@@ -97,7 +115,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
      * @return
      */
     @Override
-    protected BeanDefinition getBeanDefinition(String beanName) {
+    public BeanDefinition getBeanDefinition(String beanName) {
         return beanDefinitionMap.get(beanName);
     }
 }
