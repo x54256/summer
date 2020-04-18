@@ -49,21 +49,23 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
 
         // 读取包扫描路径
         List<String> scanPackageNames = (List<String>) configMap.get("componentScanPackages");
-        for (String packageName : scanPackageNames) {
-            Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
-            for (Class<?> clazz : classes) {
-                // 判断是否具有 @Component 注解
-                Component component = clazz.getAnnotation(Component.class);
-                if (ObjectUtil.isNotNull(component)) {
-                    DefaultBeanDefinition bd = new DefaultBeanDefinition();
+        if (ObjectUtil.isNotEmpty(scanPackageNames)) {
+            for (String packageName : scanPackageNames) {
+                Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
+                for (Class<?> clazz : classes) {
+                    // 判断是否具有 @Component 注解
+                    Component component = clazz.getAnnotation(Component.class);
+                    if (ObjectUtil.isNotNull(component)) {
+                        DefaultBeanDefinition bd = new DefaultBeanDefinition();
 
-                    String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());
-                    bd.setName(beanName);
-                    bd.setClassName(clazz.getName());
+                        String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());
+                        bd.setName(beanName);
+                        bd.setClassName(clazz.getName());
 
-                    // TODO: 2020/4/18 参数列表
+                        // TODO: 2020/4/18 参数列表
 
-                    super.registerBeanDefinition(beanName, bd);
+                        super.registerBeanDefinition(beanName, bd);
+                    }
                 }
             }
         }
