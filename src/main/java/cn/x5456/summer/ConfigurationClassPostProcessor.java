@@ -6,6 +6,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
+import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.stereotype.*;
 import cn.x5456.summer.util.ReflectUtils;
@@ -37,13 +38,23 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     private void processConfigurationClass(BeanDefinitionRegistry registry, BeanDefinition classBeanDefinition, Class<?> clazz) {
+        // 获取被标注 @Configuration 注解类上的所有注解信息
+        AnnotationMetadata annotationMetadata = new AnnotationMetadata(clazz);
+
+        // 0、检查是否具有条件注解，如果有且值为 false 则不进行处理
+        Conditional conditional = AnnotationUtil.getAnnotation(clazz, Conditional.class);
+        if (ObjectUtil.isNotNull(conditional)) {
+            Class<? extends Condition> conditions = conditional.value();
+
+            if (!ReflectUtil.newInstance(conditions).matches((BeanFactory) registry, annotationMetadata)) {
+                return;
+            }
+        }
+
         // 1、处理 @Import 注解
         Import annotation = AnnotationUtil.getAnnotation(clazz, Import.class);
         if (ObjectUtil.isNotEmpty(annotation) && ObjectUtil.isNotEmpty(annotation.value())) {
             Class<?>[] importClasses = annotation.value();
-
-            // 获取被标注 @Import 注解类上的所有注解信息
-            AnnotationMetadata annotationMetadata = new AnnotationMetadata(clazz);
 
             this.processImport(registry, importClasses, annotationMetadata);
         }
