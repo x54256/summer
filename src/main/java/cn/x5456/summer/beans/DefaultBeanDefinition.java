@@ -1,5 +1,7 @@
 package cn.x5456.summer.beans;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.util.List;
 
 /**
@@ -31,6 +33,15 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     // 属性参数列表
     private List<PropertyArgDefinition> properties;
+
+
+    public static DefaultBeanDefinition getBD(Class<?> clazz) {
+        DefaultBeanDefinition bdDef = new DefaultBeanDefinition();
+        bdDef.setName(StrUtil.lowerFirst(clazz.getSimpleName()));
+        bdDef.setClassName(clazz.getName());
+        return bdDef;
+    }
+
 
     /**
      * 名称

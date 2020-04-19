@@ -3,9 +3,7 @@ package cn.x5456.summer.beans.factory.support;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.x5456.summer.Aware;
-import cn.x5456.summer.BeanNameAware;
-import cn.x5456.summer.BeanPostProcessor;
+import cn.x5456.summer.*;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.BeanWrapper;
 import cn.x5456.summer.beans.PropertyArgDefinition;
@@ -138,6 +136,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         beanWrapper.setPropertyValues(propertyValueList);
         Object bean = beanWrapper.getWrappedInstance();
 
+        // 增加对注解的处理（在Spring中，下面这些是在 beanWrapper.setPropertyValues(propertyValueList); 之后执行的，为了避免重复注入）
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessPropertyValues(bean, beanDefinition.getName());
+            }
+        }
+
         // 3、调用部分 Aware 的方法
         this.invokeAwareMethod(bean, beanDefinition.getName());
 
@@ -163,6 +168,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         if (bean instanceof Aware) {
             if (bean instanceof BeanNameAware) {
                 ((BeanNameAware) bean).setBeanName(beanName);
+            }
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
             }
             // else if () ...
         }

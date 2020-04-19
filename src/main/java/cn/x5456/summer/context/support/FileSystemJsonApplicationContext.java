@@ -78,12 +78,10 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
         // beanFactory 初始化完成后，
 
         // 注册一个对注解处理的 ConfigurationClassPostProcessor
-        DefaultBeanDefinition bd = new DefaultBeanDefinition();
-        bd.setName("configurationClassPostProcessor");
-        bd.setClassName(ConfigurationClassPostProcessor.class.getName());
-        beanFactory.registerBeanDefinition(bd.getName(), bd);
+        DefaultBeanDefinition bdDef = DefaultBeanDefinition.getBD(ConfigurationClassPostProcessor.class);
+        beanFactory.registerBeanDefinition(bdDef.getName(), bdDef);
 
-        // 向其中添加一个后置处理器
+        // 向其中添加一个后置处理器，用于 Aware
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }
 

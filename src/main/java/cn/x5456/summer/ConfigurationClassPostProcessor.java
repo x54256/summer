@@ -3,7 +3,6 @@ package cn.x5456.summer;
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
@@ -58,12 +57,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         for (Class<?> importClass : importClasses) {
 
             // 1、将其 @Import 的类加入 bdMap 中
-            DefaultBeanDefinition bdDef = new DefaultBeanDefinition();
-            String beanName = StrUtil.lowerFirst(importClass.getSimpleName());
-            bdDef.setName(beanName);
-            bdDef.setClassName(importClass.getName());
-
-            registry.registerBeanDefinition(beanName, bdDef);
+            DefaultBeanDefinition bdDef = DefaultBeanDefinition.getBD(importClass);
+            registry.registerBeanDefinition(bdDef.getName(), bdDef);
 
             // 2、处理 Import 类型为 ImportSelector 的
             if (ImportSelector.class.isAssignableFrom(importClass)) {

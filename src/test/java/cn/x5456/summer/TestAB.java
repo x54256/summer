@@ -1,7 +1,6 @@
 package cn.x5456.summer;
 
-import cn.x5456.summer.beans.factory.ListableBeanFactory;
-import cn.x5456.summer.beans.factory.support.JsonBeanFactoryImpl;
+import cn.x5456.summer.context.support.FileSystemJsonApplicationContext;
 
 /**
  * @author yujx
@@ -9,7 +8,9 @@ import cn.x5456.summer.beans.factory.support.JsonBeanFactoryImpl;
  */
 public class TestAB {
     public static void main(String[] args) {
-        ListableBeanFactory bf = new JsonBeanFactoryImpl("/Users/x5456/IdeaProjects/Summer/src/test/resources/ab.json");
-        System.out.println(bf.getBean("a"));
+        FileSystemJsonApplicationContext fileSystemJsonApplicationContext = new FileSystemJsonApplicationContext(new String[]{
+                "/Users/x5456/IdeaProjects/Summer/src/test/resources/apple.json"
+        });
+        System.out.println(fileSystemJsonApplicationContext.getBean("a"));
     }
 }

@@ -7,6 +7,8 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.x5456.summer.BeanPostProcessor;
+import cn.x5456.summer.InitAnnotationBeanPostProcessor;
+import cn.x5456.summer.ResourcePostProcessor;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.BeanFactory;
@@ -70,6 +72,13 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
                 }
             }
         }
+
+        // 注册几个默认的后置处理器
+        DefaultBeanDefinition bdDef = DefaultBeanDefinition.getBD(InitAnnotationBeanPostProcessor.class);
+        super.registerBeanDefinition(bdDef.getName(), bdDef);
+
+        DefaultBeanDefinition bdDef2 = DefaultBeanDefinition.getBD(ResourcePostProcessor.class);
+        super.registerBeanDefinition(bdDef2.getName(), bdDef2);
 
         // 向 beanPostProcessors 中添加后置处理器
         for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {
