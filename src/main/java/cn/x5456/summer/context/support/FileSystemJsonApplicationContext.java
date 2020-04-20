@@ -2,6 +2,7 @@ package cn.x5456.summer.context.support;
 
 import cn.x5456.summer.ApplicationContextAwareProcessor;
 import cn.x5456.summer.ConfigurationClassPostProcessor;
+import cn.x5456.summer.PropertySourcesBeanFactoryPostProcessor;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.beans.factory.support.JsonBeanFactoryImpl;
@@ -80,6 +81,9 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
         // 注册一个对注解处理的 ConfigurationClassPostProcessor
         DefaultBeanDefinition bdDef = DefaultBeanDefinition.getBD(ConfigurationClassPostProcessor.class);
         beanFactory.registerBeanDefinition(bdDef.getName(), bdDef);
+
+        DefaultBeanDefinition bdDef2 = DefaultBeanDefinition.getBD(PropertySourcesBeanFactoryPostProcessor.class);
+        beanFactory.registerBeanDefinition(bdDef2.getName(), bdDef2);
 
         // 向其中添加一个后置处理器，用于 Aware
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));

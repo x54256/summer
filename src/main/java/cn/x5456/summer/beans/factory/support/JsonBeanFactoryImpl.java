@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.x5456.summer.AutowiredAnnotationBeanPostProcessor;
 import cn.x5456.summer.BeanPostProcessor;
 import cn.x5456.summer.InitAnnotationBeanPostProcessor;
 import cn.x5456.summer.ResourcePostProcessor;
@@ -79,6 +80,9 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
 
         DefaultBeanDefinition bdDef2 = DefaultBeanDefinition.getBD(ResourcePostProcessor.class);
         super.registerBeanDefinition(bdDef2.getName(), bdDef2);
+
+        DefaultBeanDefinition bdDef3 = DefaultBeanDefinition.getBD(AutowiredAnnotationBeanPostProcessor.class);
+        super.registerBeanDefinition(bdDef3.getName(), bdDef3);
 
         // 向 beanPostProcessors 中添加后置处理器
         for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {

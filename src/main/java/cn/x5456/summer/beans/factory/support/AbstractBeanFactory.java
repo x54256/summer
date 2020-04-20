@@ -9,6 +9,7 @@ import cn.x5456.summer.beans.BeanWrapper;
 import cn.x5456.summer.beans.PropertyArgDefinition;
 import cn.x5456.summer.beans.PropertyValue;
 import cn.x5456.summer.beans.factory.*;
+import cn.x5456.summer.env.PropertyResolver;
 import cn.x5456.summer.util.ReflectUtils;
 
 import javax.annotation.PreDestroy;
@@ -33,9 +34,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     // 二级缓存：维护早期暴露的Bean(只进行了实例化，并未进行属性注入)
     private final Map<String, Object> earlySingletonObjects = new HashMap<>();
 
+    // 销毁 注册中心
     private final DefaultSingletonBeanRegistry registry = new DefaultSingletonBeanRegistry();
 
+    // 存放 bean 后置处理器列表
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+    // 存放解析 @Value 注解的解析器
+    private final List<PropertyResolver> embeddedValueResolver = new ArrayList<>();
 
     public AbstractBeanFactory() {
     }
@@ -291,6 +297,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         beanPostProcessors.add(beanPostProcessor);
+    }
+
+    @Override
+    public void addEmbeddedValueResolver(PropertyResolver propertyResolver) {
+        embeddedValueResolver.add(propertyResolver);
+    }
+
+    @Override
+    public List<PropertyResolver> getEmbeddedValueResolver() {
+        return embeddedValueResolver;
     }
 
     /**

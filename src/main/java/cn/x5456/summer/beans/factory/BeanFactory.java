@@ -1,6 +1,9 @@
 package cn.x5456.summer.beans.factory;
 
 import cn.x5456.summer.BeanPostProcessor;
+import cn.x5456.summer.env.PropertyResolver;
+
+import java.util.List;
 
 /**
  * 生产 bean 的工厂
@@ -25,6 +28,9 @@ public interface BeanFactory {
      */
     boolean isSingleton(String name);
 
+    // ----> 下面这些默认方法都是 ConfigurableBeanFactory 这个接口中的，
+    // 目的是让 ABF 实现，不让 AAP 实现
+
     /**
      * 执行单例对象销毁方法
      * <p>
@@ -40,5 +46,12 @@ public interface BeanFactory {
     }
 
     default void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+    }
+
+    default void addEmbeddedValueResolver(PropertyResolver propertyResolver) {
+    }
+
+    default List<PropertyResolver> getEmbeddedValueResolver() {
+        return null;
     }
 }
