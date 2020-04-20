@@ -1,8 +1,10 @@
 package cn.x5456.summer;
 
 import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
@@ -16,8 +18,10 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author yujx
@@ -65,6 +69,25 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             this.processPropertySource(propertySource.value());
         }
 
+        // 4、处理 @ComponentScan 注解
+        ComponentScan componentScan = AnnotationUtil.getAnnotation(clazz, ComponentScan.class);
+        if (ObjectUtil.isNotEmpty(componentScan) && ObjectUtil.isNotEmpty(componentScan.value())) {
+
+            // 扫描包并加入 bdMap 中
+            List<BeanDefinition> beanDefinitions = this.processComponentScan(registry, componentScan.value());
+
+            // 处理扫描到的类上包含 @Configuration 的，对他进行解析
+            for (BeanDefinition beanDefinition : beanDefinitions) {
+                // 找到类上携带 @Configuration 的
+                Class<?> childClazz = ReflectUtils.getType(beanDefinition.getClassName());
+                Configuration configuration = AnnotationUtil.getAnnotation(childClazz, Configuration.class);
+                if (ObjectUtil.isNotEmpty(configuration)) {
+                    // 处理 @Configuration 标注的类
+                    this.processConfigurationClass(registry, beanDefinition, childClazz);
+                }
+            }
+        }
+
 
         // 1、处理 @Import 注解
         Import annotation = AnnotationUtil.getAnnotation(clazz, Import.class);
@@ -76,6 +99,29 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
         // 2、处理 @Bean 注解
         this.processBean(registry, classBeanDefinition, clazz);
+    }
+
+    private List<BeanDefinition> processComponentScan(BeanDefinitionRegistry registry, String[] basePackages) {
+        List<BeanDefinition> beanDefinitions = new ArrayList<>();
+
+        for (String basePackage : basePackages) {
+            Set<Class<?>> classes = ClassUtil.scanPackage(basePackage);
+            for (Class<?> clazz : classes) {
+                // 判断是否具有 @Component 注解，并且本身不是注解
+                Component component = AnnotationUtil.getAnnotation(clazz, Component.class);
+                if (ObjectUtil.isNotNull(component) && !clazz.isAnnotation()) {
+                    DefaultBeanDefinition bd = new DefaultBeanDefinition();
+
+                    String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());
+                    bd.setName(beanName);
+                    bd.setClassName(clazz.getName());
+                    registry.registerBeanDefinition(beanName, bd);
+                    beanDefinitions.add(bd);
+                }
+            }
+        }
+
+        return beanDefinitions;
     }
 
     private void processPropertySource(String[] locations) {

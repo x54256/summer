@@ -14,5 +14,6 @@ public class TestJsonAP {
         });
 
         System.out.println(fileSystemJsonApplicationContext.getBean("dog"));
+        System.out.println(fileSystemJsonApplicationContext.getBean("apple"));
     }
 }
