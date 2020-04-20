@@ -27,6 +27,9 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
             if (bean instanceof ApplicationContextAware) {
                 ((ApplicationContextAware) bean).setApplicationContext(applicationContext);
             }
+            if (bean instanceof EnvironmentAware) {
+                ((EnvironmentAware) bean).setEnvironment(applicationContext.getEnvironment());
+            }
             // else if () ...
         }
         return bean;
