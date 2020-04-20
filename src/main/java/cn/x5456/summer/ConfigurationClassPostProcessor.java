@@ -54,7 +54,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         if (ObjectUtil.isNotNull(conditional)) {
             Class<? extends Condition> conditions = conditional.value();
 
-            if (!ReflectUtil.newInstance(conditions).matches((BeanFactory) registry, annotationMetadata)) {
+            if (!ReflectUtil.newInstance(conditions).matches(new ConditionContext((BeanFactory) registry, environment), annotationMetadata)) {
                 return;
             }
         }

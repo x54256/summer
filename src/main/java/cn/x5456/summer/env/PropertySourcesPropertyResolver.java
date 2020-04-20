@@ -32,6 +32,7 @@ public class PropertySourcesPropertyResolver implements PropertyResolver {
 
     @Override
     public <T> T getProperty(String key, Class<T> targetType) {
+        // TODO: 2020/4/20 只对基本类型进行了支持，数组、List、Map等还不支持
         return ReflectUtils.string2BasicType(this.getProperty(key), targetType);
     }
 }

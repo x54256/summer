@@ -29,6 +29,9 @@ public final class ReflectUtils {
     }
 
     public static <T> T string2BasicType(String val, Class<T> type) {
+        if (val == null) {
+            return null;
+        }
         try {
             Constructor<T> constructor = type.getConstructor(String.class);
             constructor.setAccessible(true);
