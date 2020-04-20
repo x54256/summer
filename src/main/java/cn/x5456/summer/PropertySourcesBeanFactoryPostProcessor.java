@@ -1,6 +1,7 @@
 package cn.x5456.summer;
 
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.env.Environment;
 import cn.x5456.summer.env.PropertyResolver;
 import cn.x5456.summer.env.PropertySourcesPropertyResolver;
 
@@ -15,13 +16,15 @@ import java.util.Properties;
  * @author yujx
  * @date 2020/04/20 13:56
  */
-public class PropertySourcesBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public class PropertySourcesBeanFactoryPostProcessor implements BeanFactoryPostProcessor, EnvironmentAware {
 
     // 存放 properties 文件的位置
     // 理论上是 Spring 初始化这个对象的时候，会通过 set 方法依赖注入，但是为了省事，直接在这里写死
     private String[] locations = new String[]{
-            "/Users/x5456/IdeaProjects/Summer/src/test/resources/value/test.properties"
+//            "/Users/x5456/IdeaProjects/Summer/src/test/resources/value/test.properties"
     };
+
+    private Environment environment;
 
     /**
      * 向 bf 中添加一个 @Value 解析器
@@ -45,6 +48,13 @@ public class PropertySourcesBeanFactoryPostProcessor implements BeanFactoryPostP
             }
         }
 
+        // 如果 applicationContext 中的 env 不为空，则把其中加载的 Properties 也加入
+        // 通过这段代码可以得出，用 xml 配置的 properties 文件，从 env 中读不出来，但是通过注解 @PropertySource 的两者都能获取到
+        if (this.environment != null) {
+            List<Properties> envPropertySources = environment.getPropertySources();
+            propertiesList.addAll(envPropertySources);
+        }
+
         // 创建一个 properties 解析器
         PropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertiesList);
 
@@ -54,5 +64,10 @@ public class PropertySourcesBeanFactoryPostProcessor implements BeanFactoryPostP
 
     public void setLocations(String... locations) {
         this.locations = locations;
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }

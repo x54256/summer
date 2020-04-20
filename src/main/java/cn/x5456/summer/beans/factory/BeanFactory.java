@@ -51,7 +51,7 @@ public interface BeanFactory {
     default void addEmbeddedValueResolver(PropertyResolver propertyResolver) {
     }
 
-    default List<PropertyResolver> getEmbeddedValueResolver() {
+    default List<PropertyResolver> getEmbeddedValueResolvers() {
         return null;
     }
 }

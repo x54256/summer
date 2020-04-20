@@ -1,13 +1,15 @@
 package cn.x5456.summer.value;
 
-import cn.x5456.summer.stereotype.Component;
+import cn.x5456.summer.stereotype.Configuration;
+import cn.x5456.summer.stereotype.PropertySource;
 import cn.x5456.summer.stereotype.Value;
 
 /**
  * @author yujx
  * @date 2020/04/20 14:41
  */
-@Component
+@Configuration
+@PropertySource(value = "/Users/x5456/IdeaProjects/Summer/src/test/resources/value/test.properties")
 public class Dog {
 
     @Value("${dogName}")

@@ -54,4 +54,9 @@ public abstract class AbstractEnvironment implements Environment {
     public void addProperties(Properties properties) {
         propertySources.add(properties);
     }
+
+    @Override
+    public List<Properties> getPropertySources() {
+        return propertySources;
+    }
 }

@@ -35,7 +35,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor, 
                     realValue = realValue.substring(2, realValue.length() - 1);
                 }
 
-                for (PropertyResolver propertyResolver : beanFactory.getEmbeddedValueResolver()) {
+                for (PropertyResolver propertyResolver : beanFactory.getEmbeddedValueResolvers()) {
                     if (ObjectUtil.isNotNull(propertyResolver.getProperty(realValue))) {
                         fieldValue = propertyResolver.getProperty(realValue);
                         break;

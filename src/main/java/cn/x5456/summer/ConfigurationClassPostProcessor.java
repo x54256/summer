@@ -8,16 +8,24 @@ import cn.x5456.summer.beans.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.BeanDefinitionRegistry;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.env.Environment;
 import cn.x5456.summer.stereotype.*;
 import cn.x5456.summer.util.ReflectUtils;
 
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author yujx
  * @date 2020/04/18 17:37
  */
-public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
+public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
+
+    private Environment environment;
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
@@ -51,6 +59,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             }
         }
 
+        // 3、处理 @PropertySource 注解
+        PropertySource propertySource = AnnotationUtil.getAnnotation(clazz, PropertySource.class);
+        if (ObjectUtil.isNotEmpty(propertySource) && ObjectUtil.isNotEmpty(propertySource.value())) {
+            this.processPropertySource(propertySource.value());
+        }
+
+
         // 1、处理 @Import 注解
         Import annotation = AnnotationUtil.getAnnotation(clazz, Import.class);
         if (ObjectUtil.isNotEmpty(annotation) && ObjectUtil.isNotEmpty(annotation.value())) {
@@ -61,6 +76,22 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
         // 2、处理 @Bean 注解
         this.processBean(registry, classBeanDefinition, clazz);
+    }
+
+    private void processPropertySource(String[] locations) {
+        List<Properties> propertySources = environment.getPropertySources();
+        for (String location : locations) {
+            // 将文件读入 Properties 中
+            try {
+                FileInputStream inputStream = new FileInputStream(location);
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                Properties properties = new Properties();
+                properties.load(inputStreamReader);
+                propertySources.add(properties);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void processImport(BeanDefinitionRegistry registry, Class<?>[] importClasses, AnnotationMetadata annotationMetadata) {
@@ -119,5 +150,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                 registry.registerBeanDefinition(beanName, bdDef);
             }
         }
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }

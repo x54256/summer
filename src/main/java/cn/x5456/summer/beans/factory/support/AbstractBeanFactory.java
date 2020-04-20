@@ -41,7 +41,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     // 存放解析 @Value 注解的解析器
-    private final List<PropertyResolver> embeddedValueResolver = new ArrayList<>();
+    private final List<PropertyResolver> embeddedValueResolvers = new ArrayList<>();
 
     public AbstractBeanFactory() {
     }
@@ -301,12 +301,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     @Override
     public void addEmbeddedValueResolver(PropertyResolver propertyResolver) {
-        embeddedValueResolver.add(propertyResolver);
+        embeddedValueResolvers.add(propertyResolver);
     }
 
     @Override
-    public List<PropertyResolver> getEmbeddedValueResolver() {
-        return embeddedValueResolver;
+    public List<PropertyResolver> getEmbeddedValueResolvers() {
+        return embeddedValueResolvers;
     }
 
     /**

@@ -6,6 +6,8 @@ import cn.x5456.summer.BeanFactoryPostProcessor;
 import cn.x5456.summer.beans.BeanDefinition;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.context.*;
+import cn.x5456.summer.env.Environment;
+import cn.x5456.summer.env.StandardEnvironment;
 
 import java.util.Map;
 
@@ -30,6 +32,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     // 关闭钩子，防止意外关闭
     private Thread shutdownHook = new Thread(AbstractApplicationContext.this::doClose);
+
+    private Environment environment = new StandardEnvironment();
 
     /**
      * 返回父级上下文；如果没有父级，则返回null
@@ -152,6 +156,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         this.getBeanFactory().destroySingletons();
     }
 
+    /**
+     * 获取容器的环境
+     */
+    @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
 
     // ------> ListableBeanFactory 接口的方法，不会考虑父容器（我也不知道它为啥不考虑，搞不懂）
 

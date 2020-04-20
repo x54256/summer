@@ -1,5 +1,8 @@
 package cn.x5456.summer.env;
 
+import java.util.List;
+import java.util.Properties;
+
 /**
  * Environment 继承了 PropertyResolver，它可以解析我们给他提供的配置
  *
@@ -11,4 +14,6 @@ public interface Environment extends PropertyResolver {
     String[] getActiveProfiles();
 
     String[] getDefaultProfiles();
+
+    List<Properties> getPropertySources();
 }

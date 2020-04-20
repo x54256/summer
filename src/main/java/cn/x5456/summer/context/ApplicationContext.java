@@ -1,6 +1,7 @@
 package cn.x5456.summer.context;
 
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.env.Environment;
 
 /**
  * 应用上下文接口（Spring 0.9 中还继承了一个国际化相关的接口）
@@ -29,4 +30,9 @@ public interface ApplicationContext extends ListableBeanFactory {
      * 关闭容器
      */
     void close();
+
+    /**
+     * 获取容器的环境
+     */
+    Environment getEnvironment();
 }
