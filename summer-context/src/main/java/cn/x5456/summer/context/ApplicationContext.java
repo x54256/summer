@@ -36,4 +36,6 @@ public interface ApplicationContext extends ListableBeanFactory {
      * 获取容器的环境
      */
     Environment getEnvironment();
+
+    void addApplicationListener(ApplicationListener<?> listener);
 }

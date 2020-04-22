@@ -24,6 +24,9 @@
         <module>summer-beans</module>
         <module>summer-context</module>
         <module>summer-core</module>
+        <module>summer-webmvc</module>
+        <module>test-mvc</module>
+        <module>summer-web</module>
     </modules>
 
     <properties>

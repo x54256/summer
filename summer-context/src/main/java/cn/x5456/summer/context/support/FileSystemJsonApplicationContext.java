@@ -3,7 +3,10 @@ package cn.x5456.summer.context.support;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.beans.factory.json.JsonBeanFactoryImpl;
 import cn.x5456.summer.beans.factory.support.DefaultBeanDefinition;
+import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.annotation.ConfigurationClassPostProcessor;
+import cn.x5456.summer.core.env.Environment;
+import cn.x5456.summer.core.env.StandardEnvironment;
 
 /**
  * 读取 json 文件的 ApplicationContext
@@ -47,6 +50,10 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
     我一开始想的是如果BF2中没有就回去BF1那里找，找到之后就直接返回了，没有对Aware进行配置，，但看了下代码发现这个说法是错的，AP2获取到了bean之后也会对Aware进行配置，不管是不是父容器。可能原因是他们不想让ApplicationContext这个接口加一个getParentBF的方法，反正Application也只是对BF进行的包装，用谁都一样
      */
     public FileSystemJsonApplicationContext(String[] locations) {
+        this.loadConfigs(locations);
+    }
+
+    private void loadConfigs(String[] locations) {
         // 将用户传入的数组的最后一个文件路径作为当前需要初始化的文件路径
         configLocation = locations[locations.length - 1];
 
@@ -65,6 +72,12 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
 
         // 刷新容器，会调用 refreshBeanFactory() 方法
         super.refresh();
+    }
+
+    public FileSystemJsonApplicationContext(String[] locations, ApplicationContext parent) {
+        super();
+        super.setParent(parent);
+        this.loadConfigs(locations);
     }
 
     /**
@@ -87,6 +100,11 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }
 
+    @Override
+    protected Environment createEnvironment() {
+        return new StandardEnvironment();
+    }
+
     /**
      * 获取当前 ApplicationContext 的 BF
      */
@@ -95,3 +113,19 @@ public class FileSystemJsonApplicationContext extends AbstractApplicationContext
         return beanFactory;
     }
 }
+/*
+附录：
+
+Spring 5.0 中 ApplicationContext 加载流程
+
+1. new FileSystemXmlApplicationContext() 的时候，FileSystemXmlApplicationContext 会将 locations 设置到成员变量保存
+2. 之后 FileSystemXmlApplicationContext 会调用 refresh() 方法，refresh() 方法会初始化 new BF() ，new 出来 bf 的时候就会调用 loadBeanDefinitions(beanFactory);
+3. loadBeanDefinitions(beanFactory) 方法就会获取到之前保存的 locations ，循环进行解析将 bd 放进 bdMap 中
+
+
+Spring 0.9 中 ApplicationContext 加载流程
+
+1. new FileSystemXmlApplicationContext() 的时候，会进行递归的加载，将前一个配置文件加载出来的容器设置为后一个的父容器
+2. 然后 FileSystemXmlApplicationContext 会调用 refresh() 方法，refresh() 方法会初始化一个 bf
+3. 因为是递归，所以会有多个 bf ， bf 的构造方法中会自动将配置文件中的信息解析进 bdMap 中，而 5.0 中则需要自己调用方法。
+ */

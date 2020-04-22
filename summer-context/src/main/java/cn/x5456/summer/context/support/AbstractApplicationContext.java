@@ -12,7 +12,6 @@ import cn.x5456.summer.context.event.ApplicationEventMulticaster;
 import cn.x5456.summer.context.event.ApplicationEventMulticasterImpl;
 import cn.x5456.summer.context.event.ContextRefreshedEvent;
 import cn.x5456.summer.core.env.Environment;
-import cn.x5456.summer.core.env.StandardEnvironment;
 
 import java.util.Map;
 
@@ -38,7 +37,21 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     // 关闭钩子，防止意外关闭
     private Thread shutdownHook = new Thread(AbstractApplicationContext.this::doClose);
 
-    private Environment environment = new StandardEnvironment();
+    private Environment environment;
+
+    // ---------------------> 改造成 Spring 5.0 版本
+
+    private String[] locations;
+
+    protected void setLocations(String[] locations) {
+        this.locations = locations;
+    }
+
+
+
+
+    // ---------------------> 改造完毕
+
 
     /**
      * 返回父级上下文；如果没有父级，则返回null
@@ -166,7 +179,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
      */
     @Override
     public Environment getEnvironment() {
+        if (environment == null) {
+            environment = this.createEnvironment();
+        }
         return environment;
+    }
+
+    protected abstract Environment createEnvironment();
+
+    @Override
+    public void addApplicationListener(ApplicationListener<?> listener) {
+        eventMulticaster.addApplicationListener(listener);
     }
 
     // ------> ListableBeanFactory 接口的方法，不会考虑父容器（我也不知道它为啥不考虑，搞不懂）
