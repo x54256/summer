@@ -44,32 +44,36 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
         String json = FileUtil.readUtf8String(filePath);
         Map<String, Object> configMap = JsonUtils.toMap(json, String.class, Object.class);
 
-        List<Map<String, String>> beanDefinitionList = (List<Map<String, String>>) configMap.get("beans");
-        if (ObjectUtil.isNotEmpty(beanDefinitionList)) {
-            for (Map<String, String> map : beanDefinitionList) {
-                BeanDefinition bd = BeanUtil.mapToBeanIgnoreCase(map, DefaultBeanDefinition.class, true);
-                super.registerBeanDefinition(bd.getName(), bd);
+        if (configMap != null && configMap.containsKey("beans")) {
+            List<Map<String, String>> beanDefinitionList = (List<Map<String, String>>) configMap.get("beans");
+            if (ObjectUtil.isNotEmpty(beanDefinitionList)) {
+                for (Map<String, String> map : beanDefinitionList) {
+                    BeanDefinition bd = BeanUtil.mapToBeanIgnoreCase(map, DefaultBeanDefinition.class, true);
+                    super.registerBeanDefinition(bd.getName(), bd);
+                }
             }
         }
 
-        // 读取包扫描路径
-        List<String> scanPackageNames = (List<String>) configMap.get("componentScanPackages");
-        if (ObjectUtil.isNotEmpty(scanPackageNames)) {
-            for (String packageName : scanPackageNames) {
-                Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
-                for (Class<?> clazz : classes) {
-                    // 判断是否具有 @Component 注解，并且本身不是注解
-                    Component component = AnnotationUtil.getAnnotation(clazz, Component.class);
-                    if (ObjectUtil.isNotNull(component) && !clazz.isAnnotation()) {
-                        DefaultBeanDefinition bd = new DefaultBeanDefinition();
+        if (configMap != null && configMap.containsKey("componentScanPackages")) {
+            // 读取包扫描路径
+            List<String> scanPackageNames = (List<String>) configMap.get("componentScanPackages");
+            if (ObjectUtil.isNotEmpty(scanPackageNames)) {
+                for (String packageName : scanPackageNames) {
+                    Set<Class<?>> classes = ClassUtil.scanPackage(packageName);
+                    for (Class<?> clazz : classes) {
+                        // 判断是否具有 @Component 注解，并且本身不是注解
+                        Component component = AnnotationUtil.getAnnotation(clazz, Component.class);
+                        if (ObjectUtil.isNotNull(component) && !clazz.isAnnotation()) {
+                            DefaultBeanDefinition bd = new DefaultBeanDefinition();
 
-                        String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());
-                        bd.setName(beanName);
-                        bd.setClassName(clazz.getName());
+                            String beanName = StrUtil.isNotBlank(component.value()) ? component.value() : StrUtil.lowerFirst(clazz.getSimpleName());
+                            bd.setName(beanName);
+                            bd.setClassName(clazz.getName());
 
-                        // TODO: 2020/4/18 参数列表
+                            // TODO: 2020/4/18 参数列表
 
-                        super.registerBeanDefinition(beanName, bd);
+                            super.registerBeanDefinition(beanName, bd);
+                        }
                     }
                 }
             }

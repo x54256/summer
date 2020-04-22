@@ -52,7 +52,9 @@ public abstract class FrameworkServlet extends HttpServletBean {
         // 如果当前的 web 容器为空，则创建一个
         if (wac == null) {
             // SpringMVC 配置文件地址
-            String[] locations = new String[]{"。。。。"};
+            String mvcConfigLocation = super.getServletConfig().getInitParameter("mvcConfigLocation");
+            String realPath = servletContext.getRealPath(mvcConfigLocation);
+            String[] locations = new String[]{realPath};
             wac = new JsonWebApplicationContext(locations, rootContext);
             this.configureAndRefreshWebApplicationContext();
         }
