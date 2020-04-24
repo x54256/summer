@@ -23,6 +23,8 @@ public class DispatcherServlet extends FrameworkServlet {
 //        initMultipartResolver(context);
 //        initLocaleResolver(context);
 //        initThemeResolver(context);
+
+        // 初始化处理器映射器，通过处理器映射器找到对应的方法进行执行
 //        initHandlerMappings(context);
 //        initHandlerAdapters(context);
 //        initHandlerExceptionResolvers(context);
@@ -30,5 +32,7 @@ public class DispatcherServlet extends FrameworkServlet {
 //        initViewResolvers(context);
 //        initFlashMapManager(context);
     }
+
+    // 循环处理器映射器，调用它的方法，对请求进行解析，找到对应的 【处理链】
 
 }
