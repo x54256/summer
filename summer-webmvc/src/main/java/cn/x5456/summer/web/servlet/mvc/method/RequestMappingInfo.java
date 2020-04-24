@@ -14,8 +14,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestMappingInfo implements RequestCondition<RequestMappingInfo> {
 
+    // 请求路径条件 /rest/xxx
     private PatternsRequestCondition patternsCondition;
 
+    // 请求方法条件 GET、POST
     private RequestMethodsRequestCondition requestMethodsRequestCondition;
 
     private RequestMappingInfo(PatternsRequestCondition patternsCondition, RequestMethodsRequestCondition requestMethodsRequestCondition) {

@@ -134,8 +134,10 @@ public class RequestMappingHandlerMapping extends AbstractHandlerMapping impleme
                     }
                 }
 
-                // 放进 Map 中
-                methodMap.put(method, info);
+                if (ObjectUtil.isNotNull(info)) {
+                    // 放进 Map 中
+                    methodMap.put(method, info);
+                }
             }
         }
 
@@ -147,7 +149,7 @@ public class RequestMappingHandlerMapping extends AbstractHandlerMapping impleme
 
     private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
         RequestMapping requestMapping = AnnotationUtil.getAnnotation(element, RequestMapping.class);
-        if (ObjectUtil.isNotNull(requestMapping)) {
+        if (ObjectUtil.isNull(requestMapping)) {
             return null;
         }
 
