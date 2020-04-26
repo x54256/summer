@@ -44,7 +44,7 @@ public class RequestMethodsRequestCondition implements RequestCondition<RequestM
     @Override
     public RequestMethodsRequestCondition getMatchingCondition(HttpServletRequest request) {
         if (methods.isEmpty()) {
-            return null;
+            return new RequestMethodsRequestCondition();
         }
 
         RequestMethod requestMethod = RequestMethod.valueOf(request.getMethod());

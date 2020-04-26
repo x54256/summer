@@ -1,10 +1,4 @@
 {
-  "beans": [
-    {
-      "name": "requestMappingHandlerMapping",
-      "className": "cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"
-    }
-  ],
   "componentScanPackages": [
     "cn.x5456.testmvc.controller"
   ]

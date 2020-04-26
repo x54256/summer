@@ -167,7 +167,7 @@ public class RequestMappingHandlerMapping extends AbstractHandlerMapping impleme
     protected HandlerMethod getHandlerInternal(HttpServletRequest request) {
         List<Match> matches = new ArrayList<>();
 
-        String lookupPath = request.getRequestURI();
+        String lookupPath = request.getServletPath();
         List<RequestMappingInfo> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
         // 如果找到匹配的了，就进行校验，看看是否符合当前请求
         if (directPathMatches != null) {
@@ -184,7 +184,7 @@ public class RequestMappingHandlerMapping extends AbstractHandlerMapping impleme
             return bestMatch.handlerMethod;
         }
 
-        throw new RuntimeException("没有为当前请求找到处理器！");
+        return null;
     }
 
     /**

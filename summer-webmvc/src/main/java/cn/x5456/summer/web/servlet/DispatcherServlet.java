@@ -61,14 +61,21 @@ public class DispatcherServlet extends FrameworkServlet {
 
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
+        // 为请求设置一些属性
 
+        // 调用处理方法
+        this.doDispatch(request, response);
     }
 
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) {
+
+        // 获取对当前请求处理的处理链路
         HandlerExecutionChain mappedHandler = this.getHandler(request);
         if (mappedHandler == null || mappedHandler.getHandler() == null) {
             return;
         }
+
+
     }
 
     /**
