@@ -22,6 +22,13 @@ public abstract class AbstractHandlerMapping implements HandlerMapping {
             return null;
         }
 
+        // 如果是实现了 Controller 接口的情况，则从 bf 中取出
+        // if (handler instanceof String) {
+        //     String handlerName = (String) handler;
+        //     handler = getApplicationContext().getBean(handlerName);
+        // }
+
+        // 这个地方和拦截器有关
 //        return this.getHandlerExecutionChain(handler, request);
         return null;
     }

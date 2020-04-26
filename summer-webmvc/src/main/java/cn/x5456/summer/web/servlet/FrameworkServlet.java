@@ -4,11 +4,15 @@ import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationListener;
 import cn.x5456.summer.context.event.ContextRefreshedEvent;
 import cn.x5456.summer.core.env.Environment;
+import cn.x5456.summer.web.context.WebApplicationContext;
 import cn.x5456.summer.web.context.support.JsonWebApplicationContext;
 import cn.x5456.summer.web.context.support.StandardServletEnvironment;
-import cn.x5456.summer.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author yujx
@@ -119,6 +123,29 @@ public abstract class FrameworkServlet extends HttpServletBean {
         // For subclasses: do nothing by default.
     }
 
-//    protected abstract void doService(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException;
+    // ------> 请求来了
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doGet(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doPost(req, resp);
+    }
+
+    protected final void processRequest(HttpServletRequest request, HttpServletResponse response) {
+
+        // 准备一些环境（本地化、异步、还有一个什么参数不知道干啥用的）
+
+
+        // 调用处理方法
+        this.doService(request, response);
+
+        // 触发一个事件
+    }
+
+
+    protected abstract void doService(HttpServletRequest request, HttpServletResponse response);
 }

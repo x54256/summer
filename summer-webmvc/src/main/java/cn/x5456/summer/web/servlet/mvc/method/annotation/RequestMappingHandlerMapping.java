@@ -1,6 +1,7 @@
 package cn.x5456.summer.web.servlet.mvc.method.annotation;
 
 import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.x5456.summer.beans.factory.InitializingBean;
 import cn.x5456.summer.context.ApplicationContext;
@@ -164,57 +165,54 @@ public class RequestMappingHandlerMapping extends AbstractHandlerMapping impleme
      */
     @Override
     protected HandlerMethod getHandlerInternal(HttpServletRequest request) {
-//        List<Match> matches = new ArrayList<>();
-//
-//        String lookupPath = request.getRequestURI();
-//        Collection<RequestMappingInfo> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
-//        // 如果找到匹配的了，就进行校验，找到最合适的
-//        if (directPathMatches != null) {
-//            this.addMatchingMappings(directPathMatches, matches, request);
-//        }
-//        // 如果没有找到合适的，说明可能是 @PathVariable 的情况，则把所有的 RequestMappingInfo 交给它进行寻找匹配的。
-//        if (matches.isEmpty()) {
-//            this.addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
-//        }
-//
-//        // 如果匹配的不为空，则取出第一个将它的 handlerMethod 进行返回
-//        if (CollUtil.isNotEmpty(matches)) {
-//            Match bestMatch = matches.get(0);
-//            return bestMatch.handlerMethod;
-//        }
+        List<Match> matches = new ArrayList<>();
+
+        String lookupPath = request.getRequestURI();
+        List<RequestMappingInfo> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
+        // 如果找到匹配的了，就进行校验，看看是否符合当前请求
+        if (directPathMatches != null) {
+            this.addMatchingMappings(directPathMatches, matches, request);
+        }
+        // 如果没有找到合适的，说明可能是 @PathVariable 的情况，则把所有的 RequestMappingInfo 交给它进行寻找匹配的。
+        if (matches.isEmpty()) {
+            this.addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
+        }
+
+        // 如果匹配的不为空，则取出第一个将它的 handlerMethod 进行返回
+        if (CollUtil.isNotEmpty(matches)) {
+            Match bestMatch = matches.get(0);
+            return bestMatch.handlerMethod;
+        }
 
         throw new RuntimeException("没有为当前请求找到处理器！");
     }
-//
-//    /**
-//     * 对请求头、请求方法、请求路径（包括 @PathVariable）、请求参数进行校验
-//     * <p>
-//     * 注：头我就不校验了。
-//     */
-//    // TODO: 2020/4/24
-//    private void addMatchingMappings(Collection<RequestMappingInfo> mappingInfos, List<Match> matches, HttpServletRequest request) {
-//        for (RequestMappingInfo mappingInfo : mappingInfos) {
-//            boolean isMatch = mappingInfo.getMatchingCondition(request);
-//            if (isMatch) {
-//                matches.add(new Match(mappingInfo, this.mappingRegistry.getMappings().get(mappingInfo)));
-//            }
-//        }
-//    }
-//
-//    private class Match {
-//
-//        private final RequestMappingInfo mapping;
-//
-//        private final HandlerMethod handlerMethod;
-//
-//        public Match(RequestMappingInfo mapping, HandlerMethod handlerMethod) {
-//            this.mapping = mapping;
-//            this.handlerMethod = handlerMethod;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return this.mapping.toString();
-//        }
-//    }
+
+    /**
+     * 对请求方法、请求路径（包括 @PathVariable）【@RequestMapping 相关的内容】进行校验
+     */
+    private void addMatchingMappings(Collection<RequestMappingInfo> mappingInfos, List<Match> matches, HttpServletRequest request) {
+        for (RequestMappingInfo mappingInfo : mappingInfos) {
+            RequestMappingInfo info = mappingInfo.getMatchingCondition(request);
+            if (ObjectUtil.isNotNull(info)) {
+                matches.add(new Match(info, this.mappingRegistry.getMappings().get(mappingInfo)));
+            }
+        }
+    }
+
+    private static class Match {
+
+        private final RequestMappingInfo mapping;
+
+        private final HandlerMethod handlerMethod;
+
+        public Match(RequestMappingInfo mapping, HandlerMethod handlerMethod) {
+            this.mapping = mapping;
+            this.handlerMethod = handlerMethod;
+        }
+
+        @Override
+        public String toString() {
+            return this.mapping.toString();
+        }
+    }
 }

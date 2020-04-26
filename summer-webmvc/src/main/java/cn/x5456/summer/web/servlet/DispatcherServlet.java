@@ -2,11 +2,20 @@ package cn.x5456.summer.web.servlet;
 
 import cn.x5456.summer.context.ApplicationContext;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author yujx
  * @date 2020/04/22 15:11
  */
 public class DispatcherServlet extends FrameworkServlet {
+
+    // 处理器映射器集合
+    private List<HandlerMapping> handlerMappings;
 
     /**
      * This implementation calls {@link #initStrategies}.
@@ -20,19 +29,60 @@ public class DispatcherServlet extends FrameworkServlet {
      * 初始化此servlet使用的策略对象。
      */
     protected void initStrategies(ApplicationContext context) {
+
+        // 5. 文件上传解析器
 //        initMultipartResolver(context);
 //        initLocaleResolver(context);
 //        initThemeResolver(context);
 
-        // 初始化处理器映射器，通过处理器映射器找到对应的方法进行执行
-//        initHandlerMappings(context);
+        // 1. 初始化处理器映射器，通过处理器映射器找到对应的方法进行执行
+        this.initHandlerMappings(context);
+
+        // 2. 处理器适配器
 //        initHandlerAdapters(context);
+
+        // 3. 异常解析器
 //        initHandlerExceptionResolvers(context);
 //        initRequestToViewNameTranslator(context);
+
+        // 4. 视图解析器
 //        initViewResolvers(context);
+
+        // 6. FlashMap 管理器【可能讲】
 //        initFlashMapManager(context);
     }
 
-    // 循环处理器映射器，调用它的方法，对请求进行解析，找到对应的 【处理链】
+    private void initHandlerMappings(ApplicationContext context) {
+        String[] bdNames = context.getBeanDefinitionNames(HandlerMapping.class);
+        this.handlerMappings = Arrays.stream(bdNames)
+                .map(beanName -> context.getBean(beanName, HandlerMapping.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    protected void doService(HttpServletRequest request, HttpServletResponse response) {
+
+    }
+
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) {
+        HandlerExecutionChain mappedHandler = this.getHandler(request);
+        if (mappedHandler == null || mappedHandler.getHandler() == null) {
+            return;
+        }
+    }
+
+    /**
+     * 根据请求获取【处理链】
+     */
+    private HandlerExecutionChain getHandler(HttpServletRequest request) {
+        for (HandlerMapping handlerMapping : handlerMappings) {
+            HandlerExecutionChain handler = handlerMapping.getHandler(request);
+            if (handler != null) {
+                return handler;
+            }
+        }
+
+        return null;
+    }
 
 }
