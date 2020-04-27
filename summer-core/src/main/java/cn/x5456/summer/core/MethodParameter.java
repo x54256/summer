@@ -14,4 +14,8 @@ public class MethodParameter {
 		this.method = method;
 		this.parameterIndex = parameterIndex;
 	}
+
+	public Class<?> getParameterType() {
+		return null;
+	}
 }

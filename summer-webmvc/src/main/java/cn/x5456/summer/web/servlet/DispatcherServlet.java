@@ -17,6 +17,9 @@ public class DispatcherServlet extends FrameworkServlet {
     // 处理器映射器集合
     private List<HandlerMapping> handlerMappings;
 
+    // 处理器适配器集合
+    private List<HandlerAdapter> handlerAdapters;
+
     /**
      * This implementation calls {@link #initStrategies}.
      */
@@ -39,7 +42,7 @@ public class DispatcherServlet extends FrameworkServlet {
         this.initHandlerMappings(context);
 
         // 2. 处理器适配器
-//        initHandlerAdapters(context);
+        this.initHandlerAdapters(context);
 
         // 3. 异常解析器
 //        initHandlerExceptionResolvers(context);
@@ -59,6 +62,13 @@ public class DispatcherServlet extends FrameworkServlet {
                 .collect(Collectors.toList());
     }
 
+    private void initHandlerAdapters(ApplicationContext context) {
+        String[] bdNames = context.getBeanDefinitionNames(HandlerAdapter.class);
+        this.handlerAdapters = Arrays.stream(bdNames)
+                .map(beanName -> context.getBean(beanName, HandlerAdapter.class))
+                .collect(Collectors.toList());
+    }
+
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
         // 为请求设置一些属性
@@ -75,6 +85,10 @@ public class DispatcherServlet extends FrameworkServlet {
             return;
         }
 
+        HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        ModelAndView mv = ha.handle(request, response, mappedHandler.getHandler());
+
+
 
     }
 
@@ -90,6 +104,16 @@ public class DispatcherServlet extends FrameworkServlet {
         }
 
         return null;
+    }
+
+    private HandlerAdapter getHandlerAdapter(Object handler) {
+        for (HandlerAdapter ha : this.handlerAdapters) {
+            if (ha.supports(handler)) {
+                return ha;
+            }
+        }
+
+        throw new RuntimeException("没有找到合适的适配器！");
     }
 
 }
