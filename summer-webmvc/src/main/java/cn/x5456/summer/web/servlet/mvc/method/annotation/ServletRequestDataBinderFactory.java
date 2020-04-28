@@ -29,6 +29,20 @@ public class ServletRequestDataBinderFactory implements WebDataBinderFactory {
      */
     @Override
     public WebDataBinder createBinder(ServletWebRequest webRequest, Object target, String objectName) {
-        return null;
+
+        // 创建一个 WebDataBinder 对象
+        WebDataBinder webDataBinder = new WebDataBinder(target, objectName);
+
+        // 使用 initializer 对 WebDataBinder 进行初始化
+        if (initializer != null) {
+            initializer.initBinder(webDataBinder, webRequest);
+        }
+
+        // 执行用户配置的 initBinder 方法，将自定义绑定器注册到 InitBinderRegister
+        for (InvocableHandlerMethod binderMethod : binderMethods) {
+            binderMethod.invokeForRequest(webRequest, null, webDataBinder);
+        }
+
+        return webDataBinder;
     }
 }

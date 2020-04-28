@@ -5,6 +5,7 @@ import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationContextAware;
 import cn.x5456.summer.context.annotation.Bean;
 import cn.x5456.summer.web.servlet.HandlerInterceptor;
+import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.Collection;
@@ -38,6 +39,12 @@ public class DelegatingWebMvcConfiguration implements ApplicationContextAware, I
 
         return registry.getInterceptors();
     }
+
+    @Bean
+    public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+        return new RequestMappingHandlerAdapter();
+    }
+
 
     @Override
     public void setApplicationContext(ApplicationContext ctx) {

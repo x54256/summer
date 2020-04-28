@@ -9,6 +9,7 @@ import cn.x5456.summer.web.bind.annotation.InitBinder;
 import cn.x5456.summer.web.bind.annotation.ModelAttribute;
 import cn.x5456.summer.web.bind.support.WebBindingInitializer;
 import cn.x5456.summer.web.method.HandlerMethod;
+import cn.x5456.summer.web.method.annotaion.RequestParamMethodArgumentResolver;
 import cn.x5456.summer.web.method.support.*;
 import cn.x5456.summer.web.request.ServletWebRequest;
 import cn.x5456.summer.web.servlet.HandlerAdapter;
@@ -78,21 +79,27 @@ public class RequestMappingHandlerAdapter implements ApplicationContextAware, In
      * 添加默认的参数解析器
      */
     private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
-        return null;
+        return Arrays.asList(
+                new RequestParamMethodArgumentResolver()
+        );
     }
 
     /**
      * 添加解析 InitBinder 参数的默认解析器
      */
     private List<HandlerMethodArgumentResolver> getDefaultInitBinderArgumentResolvers() {
-        return null;
+        return Arrays.asList(
+
+        );
     }
 
     /**
      * 添加返回值处理器
      */
     private List<HandlerMethodReturnValueHandler> getDefaultReturnValueHandlers() {
-        return null;
+        return Arrays.asList(
+                new RequestResponseBodyMethodProcessor()
+        );
     }
 
     private void initControllerAdviceCache() {
@@ -235,7 +242,7 @@ public class RequestMappingHandlerAdapter implements ApplicationContextAware, In
         Class<?> beanType = handlerMethod.getBeanType();
         for (Method method : beanType.getMethods()) {
             if (AnnotationUtil.getAnnotation(method, ModelAttribute.class) != null) {
-                attrMethods.add(this.createInitBinderMethod(handlerMethod.getBean(), method));
+                attrMethods.add(this.createModelAttributeMethod(binderFactory, handlerMethod.getBean(), method));
             }
         }
 
