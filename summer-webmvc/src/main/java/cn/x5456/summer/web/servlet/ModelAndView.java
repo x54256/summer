@@ -14,6 +14,9 @@ public class ModelAndView {
      */
     private ModelMap model;
 
+    public ModelAndView() {
+    }
+
     public ModelAndView(Object view, ModelMap model) {
         this.view = view;
         this.model = model;
@@ -33,5 +36,9 @@ public class ModelAndView {
 
     public boolean isReference() {
         return (this.view instanceof String);
+    }
+
+    public boolean isEmpty() {
+        return view == null && model == null;
     }
 }

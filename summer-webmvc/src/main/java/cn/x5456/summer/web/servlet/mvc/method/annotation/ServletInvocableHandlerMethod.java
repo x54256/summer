@@ -7,6 +7,8 @@ import cn.x5456.summer.web.method.support.InvocableHandlerMethod;
 import cn.x5456.summer.web.method.support.ModelAndViewContainer;
 import cn.x5456.summer.web.request.ServletWebRequest;
 
+import java.lang.reflect.Method;
+
 /**
  * @author yujx
  * @date 2020/04/27 16:19
@@ -18,6 +20,10 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
     public ServletInvocableHandlerMethod(HandlerMethod handlerMethod) {
         super(handlerMethod);
+    }
+
+    public ServletInvocableHandlerMethod(Object bean, Method method) {
+        super(bean, method);
     }
 
     public void setHandlerMethodReturnValueHandlers(HandlerMethodReturnValueHandlerComposite returnValueHandlers) {

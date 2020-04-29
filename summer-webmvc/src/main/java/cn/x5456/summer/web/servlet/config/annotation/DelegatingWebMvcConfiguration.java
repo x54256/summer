@@ -4,7 +4,9 @@ import cn.x5456.summer.beans.factory.InitializingBean;
 import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationContextAware;
 import cn.x5456.summer.context.annotation.Bean;
+import cn.x5456.summer.web.servlet.HandlerExceptionResolver;
 import cn.x5456.summer.web.servlet.HandlerInterceptor;
+import cn.x5456.summer.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import cn.x5456.summer.web.servlet.view.InternalResourceViewResolver;
@@ -51,6 +53,10 @@ public class DelegatingWebMvcConfiguration implements ApplicationContextAware, I
         return new InternalResourceViewResolver();
     }
 
+    @Bean
+    public HandlerExceptionResolver handlerExceptionResolver() {
+        return new ExceptionHandlerExceptionResolver();
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext ctx) {

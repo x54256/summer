@@ -25,8 +25,16 @@ public class UserController {
     }
 
     @ResponseBody
+    @ExceptionHandler(value = RuntimeException.class)
+    public Integer test() {
+        return 123;
+    }
+
+
+    @ResponseBody
     @RequestMapping("/user/all")
     public User findAll(@RequestParam("id") Integer id) {
+        int a = 1 / 0;
         return new User("张三", 18);
     }
 

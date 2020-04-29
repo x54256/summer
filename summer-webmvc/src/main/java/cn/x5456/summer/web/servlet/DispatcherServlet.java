@@ -23,6 +23,9 @@ public class DispatcherServlet extends FrameworkServlet {
     // 视图解析器集合
     private List<ViewResolver> viewResolvers;
 
+    // 异常解析器
+    private List<HandlerExceptionResolver> handlerExceptionResolvers;
+
     /**
      * This implementation calls {@link #initStrategies}.
      */
@@ -48,7 +51,7 @@ public class DispatcherServlet extends FrameworkServlet {
         this.initHandlerAdapters(context);
 
         // 3. 异常解析器
-//        initHandlerExceptionResolvers(context);
+        this.initHandlerExceptionResolvers(context);
 //        initRequestToViewNameTranslator(context);
 
         // 4. 视图解析器
@@ -66,6 +69,13 @@ public class DispatcherServlet extends FrameworkServlet {
         String[] bdNames = context.getBeanDefinitionNames(HandlerAdapter.class);
         this.handlerAdapters = Arrays.stream(bdNames)
                 .map(beanName -> context.getBean(beanName, HandlerAdapter.class))
+                .collect(Collectors.toList());
+    }
+
+    private void initHandlerExceptionResolvers(ApplicationContext context) {
+        String[] bdNames = context.getBeanDefinitionNames(HandlerExceptionResolver.class);
+        this.handlerExceptionResolvers = Arrays.stream(bdNames)
+                .map(beanName -> context.getBean(beanName, HandlerExceptionResolver.class))
                 .collect(Collectors.toList());
     }
 
@@ -87,45 +97,62 @@ public class DispatcherServlet extends FrameworkServlet {
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) {
 
         Exception dispatchException = null;
+        HandlerExecutionChain mappedHandler = null;
+        ModelAndView mv = null;
 
-        // 获取对当前请求处理的处理链路
-        HandlerExecutionChain mappedHandler = this.getHandler(request);
-        if (mappedHandler == null || mappedHandler.getHandler() == null) {
-            return;
+        try {
+            // 获取对当前请求处理的处理链路
+            mappedHandler = this.getHandler(request);
+            if (mappedHandler == null || mappedHandler.getHandler() == null) {
+                return;
+            }
+
+            // 执行拦截器的请求处理执行前的方法
+            if (!mappedHandler.applyPreHandle(request, response)) {
+                return;
+            }
+
+            // 根据请求处理器获取处理器适配器
+            HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+
+            // 执行，返回 mav
+            mv = ha.handle(request, response, mappedHandler.getHandler());
+            if (mv == null) {
+                return;
+            }
+
+            // 执行拦截器的后置处理
+            mappedHandler.applyPostHandle(request, response, mv);
+        } catch (Exception e) {
+            dispatchException = e;
         }
-
-        // 执行拦截器的请求处理执行前的方法
-        if (!mappedHandler.applyPreHandle(request, response)) {
-            return;
-        }
-
-        // 根据请求处理器获取处理器适配器
-        HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
-
-        // 执行，返回 mav
-        ModelAndView mv = ha.handle(request, response, mappedHandler.getHandler());
-        if (mv == null) {
-            return;
-        }
-
-        // 执行拦截器的后置处理
-        mappedHandler.applyPostHandle(request, response, mv);
 
 
         this.processDispatchResult(request, response, mappedHandler, mv, dispatchException);
     }
 
-    private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain mappedHandler, ModelAndView mv, Exception dispatchException) {
+    private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain mappedHandler, ModelAndView mv, Exception ex) {
 
         // 处理异常
+        for (HandlerExceptionResolver resolver : handlerExceptionResolvers) {
+            ModelAndView modelAndView = resolver.resolveException(request, response, mappedHandler != null ? mappedHandler.getHandler() : null, ex);
+            if (modelAndView != null) {
+                mv = modelAndView;
+            } else {
+                throw new RuntimeException(ex);
+            }
+        }
+
 
         // 渲染视图
-        if (mv != null) {
+        if (mv != null && !mv.isEmpty()) {
             this.render(mv, request, response);
         }
 
         // 执行拦截器的最后一个方法
-        mappedHandler.triggerAfterCompletion(request, response, null);
+        if (mappedHandler != null) {
+            mappedHandler.triggerAfterCompletion(request, response, null);
+        }
     }
 
     private void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) {
