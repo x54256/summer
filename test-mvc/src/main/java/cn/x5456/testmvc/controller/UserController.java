@@ -1,6 +1,7 @@
 package cn.x5456.testmvc.controller;
 
 import cn.x5456.summer.stereotype.Controller;
+import cn.x5456.summer.web.Model;
 import cn.x5456.summer.web.bind.WebDataBinder;
 import cn.x5456.summer.web.bind.annotation.*;
 
@@ -27,5 +28,11 @@ public class UserController {
     @RequestMapping("/user/all")
     public User findAll(@RequestParam("id") Integer id) {
         return new User("张三", 18);
+    }
+
+    @RequestMapping("/user/all2")
+    public String findAll(@RequestParam("id") Integer id, Model model) {
+        model.addAttribute("id", id);
+        return "/WEB-INF/user.jsp";
     }
 }

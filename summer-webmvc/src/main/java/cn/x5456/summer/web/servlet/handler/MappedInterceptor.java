@@ -1,6 +1,7 @@
 package cn.x5456.summer.web.servlet.handler;
 
 import cn.x5456.summer.web.servlet.HandlerInterceptor;
+import cn.x5456.summer.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,8 +44,16 @@ public final class MappedInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         return interceptor.preHandle(request, response, handler);
+    }
+
+    /**
+     * Controller执行后但未返回视图前调用此方法
+     */
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
+        interceptor.postHandle(request, response, handler, modelAndView);
     }
 
     @Override

@@ -24,7 +24,23 @@ public class ModelAndViewContainer {
         this.requestHandled = requestHandled;
     }
 
+    // 请求是否已完成
     public boolean isRequestHandled() {
         return requestHandled;
+    }
+
+    // 获取默认的 Model
+    public ModelMap getModel() {
+        return this.defaultModel;
+    }
+
+    // 获取视图
+    public Object getView() {
+        return view;
+    }
+
+    // 设置视图
+    public void setView(Object view) {
+        this.view = view;
     }
 }

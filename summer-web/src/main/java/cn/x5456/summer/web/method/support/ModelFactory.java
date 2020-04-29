@@ -42,4 +42,11 @@ public final class ModelFactory {
             }
         }
     }
+
+    /**
+     * 更新 Model
+     */
+    public void updateModel(ServletWebRequest webRequest, ModelAndViewContainer mavContainer) {
+
+    }
 }

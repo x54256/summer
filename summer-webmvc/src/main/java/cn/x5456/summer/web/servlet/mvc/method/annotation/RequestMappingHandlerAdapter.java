@@ -4,16 +4,19 @@ import cn.hutool.core.annotation.AnnotationUtil;
 import cn.x5456.summer.beans.factory.InitializingBean;
 import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationContextAware;
+import cn.x5456.summer.web.ModelMap;
 import cn.x5456.summer.web.bind.annotation.ControllerAdvice;
 import cn.x5456.summer.web.bind.annotation.InitBinder;
 import cn.x5456.summer.web.bind.annotation.ModelAttribute;
 import cn.x5456.summer.web.bind.support.WebBindingInitializer;
 import cn.x5456.summer.web.method.HandlerMethod;
+import cn.x5456.summer.web.method.annotaion.ModelMethodProcessor;
 import cn.x5456.summer.web.method.annotaion.RequestParamMethodArgumentResolver;
 import cn.x5456.summer.web.method.support.*;
 import cn.x5456.summer.web.request.ServletWebRequest;
 import cn.x5456.summer.web.servlet.HandlerAdapter;
 import cn.x5456.summer.web.servlet.ModelAndView;
+import cn.x5456.summer.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,7 +83,8 @@ public class RequestMappingHandlerAdapter implements ApplicationContextAware, In
      */
     private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
         return Arrays.asList(
-                new RequestParamMethodArgumentResolver()
+                new RequestParamMethodArgumentResolver(),
+                new ModelMethodProcessor()
         );
     }
 
@@ -98,7 +102,8 @@ public class RequestMappingHandlerAdapter implements ApplicationContextAware, In
      */
     private List<HandlerMethodReturnValueHandler> getDefaultReturnValueHandlers() {
         return Arrays.asList(
-                new RequestResponseBodyMethodProcessor()
+                new RequestResponseBodyMethodProcessor(),
+                new ViewNameMethodReturnValueHandler()
         );
     }
 
@@ -268,11 +273,23 @@ public class RequestMappingHandlerAdapter implements ApplicationContextAware, In
      * 获取到 ModelAndView
      */
     private ModelAndView getModelAndView(ModelAndViewContainer mavContainer, ModelFactory modelFactory, ServletWebRequest webRequest) {
+
+        // 更新 Model 中的数据，反正和 @SessionAttr 有关
+        modelFactory.updateModel(webRequest, mavContainer);
+
+        // 判断请求是否结束，如果结束则直接 return null
         if (mavContainer.isRequestHandled()) {
             return null;
         }
 
-        // TODO: 2020/4/27
-        return null;
+        ModelMap model = mavContainer.getModel();
+        Object view = mavContainer.getView();
+
+        ModelAndView modelAndView = new ModelAndView(view, model);
+        if (!(view instanceof String)) {
+            modelAndView.setView((View) view);
+        }
+
+        return modelAndView;
     }
 }

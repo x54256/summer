@@ -20,6 +20,9 @@ public class DispatcherServlet extends FrameworkServlet {
     // 处理器适配器集合
     private List<HandlerAdapter> handlerAdapters;
 
+    // 视图解析器集合
+    private List<ViewResolver> viewResolvers;
+
     /**
      * This implementation calls {@link #initStrategies}.
      */
@@ -49,10 +52,7 @@ public class DispatcherServlet extends FrameworkServlet {
 //        initRequestToViewNameTranslator(context);
 
         // 4. 视图解析器
-//        initViewResolvers(context);
-
-        // 6. FlashMap 管理器【可能讲】
-//        initFlashMapManager(context);
+        this.initViewResolvers(context);
     }
 
     private void initHandlerMappings(ApplicationContext context) {
@@ -69,6 +69,13 @@ public class DispatcherServlet extends FrameworkServlet {
                 .collect(Collectors.toList());
     }
 
+    private void initViewResolvers(ApplicationContext context) {
+        String[] bdNames = context.getBeanDefinitionNames(ViewResolver.class);
+        this.viewResolvers = Arrays.stream(bdNames)
+                .map(beanName -> context.getBean(beanName, ViewResolver.class))
+                .collect(Collectors.toList());
+    }
+
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
         // 为请求设置一些属性
@@ -79,17 +86,72 @@ public class DispatcherServlet extends FrameworkServlet {
 
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) {
 
+        Exception dispatchException = null;
+
         // 获取对当前请求处理的处理链路
         HandlerExecutionChain mappedHandler = this.getHandler(request);
         if (mappedHandler == null || mappedHandler.getHandler() == null) {
             return;
         }
 
+        // 执行拦截器的请求处理执行前的方法
+        if (!mappedHandler.applyPreHandle(request, response)) {
+            return;
+        }
+
+        // 根据请求处理器获取处理器适配器
         HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+
+        // 执行，返回 mav
         ModelAndView mv = ha.handle(request, response, mappedHandler.getHandler());
+        if (mv == null) {
+            return;
+        }
+
+        // 执行拦截器的后置处理
+        mappedHandler.applyPostHandle(request, response, mv);
 
 
+        this.processDispatchResult(request, response, mappedHandler, mv, dispatchException);
+    }
 
+    private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain mappedHandler, ModelAndView mv, Exception dispatchException) {
+
+        // 处理异常
+
+        // 渲染视图
+        if (mv != null) {
+            this.render(mv, request, response);
+        }
+
+        // 执行拦截器的最后一个方法
+        mappedHandler.triggerAfterCompletion(request, response, null);
+    }
+
+    private void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) {
+        View view;
+        if (mv.isReference()) {
+            // We need to resolve the view name.
+            view = this.resolveViewName((String) mv.getView());
+            if (view == null) {
+                throw new RuntimeException("xxxx");
+            }
+        } else {
+            view = (View) mv.getView();
+        }
+
+        view.render(mv.getModel(), request, response);
+    }
+
+    protected View resolveViewName(String viewName) {
+
+        for (ViewResolver viewResolver : this.viewResolvers) {
+            View view = viewResolver.resolveViewName(viewName);
+            if (view != null) {
+                return view;
+            }
+        }
+        return null;
     }
 
     /**
@@ -106,6 +168,9 @@ public class DispatcherServlet extends FrameworkServlet {
         return null;
     }
 
+    /**
+     * 根据处理器寻找合适的适配器
+     */
     private HandlerAdapter getHandlerAdapter(Object handler) {
         for (HandlerAdapter ha : this.handlerAdapters) {
             if (ha.supports(handler)) {

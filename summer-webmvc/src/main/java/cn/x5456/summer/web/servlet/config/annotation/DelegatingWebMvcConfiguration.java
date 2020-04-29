@@ -7,6 +7,7 @@ import cn.x5456.summer.context.annotation.Bean;
 import cn.x5456.summer.web.servlet.HandlerInterceptor;
 import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import cn.x5456.summer.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import cn.x5456.summer.web.servlet.view.InternalResourceViewResolver;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +44,11 @@ public class DelegatingWebMvcConfiguration implements ApplicationContextAware, I
     @Bean
     public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
         return new RequestMappingHandlerAdapter();
+    }
+
+    @Bean
+    public InternalResourceViewResolver resourceViewResolver() {
+        return new InternalResourceViewResolver();
     }
 
 
