@@ -5,6 +5,7 @@ import cn.x5456.summer.beans.factory.ListableBeanFactory;
 import cn.x5456.summer.beans.factory.config.BeanDefinition;
 import cn.x5456.summer.beans.factory.config.BeanDefinitionRegistryPostProcessor;
 import cn.x5456.summer.beans.factory.config.BeanFactoryPostProcessor;
+import cn.x5456.summer.beans.factory.config.BeanPostProcessor;
 import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationListener;
 import cn.x5456.summer.context.event.ApplicationEvent;
@@ -64,6 +65,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
         // 执行 BeanFactoryPostProcessor
         this.invokeBeanFactoryPostProcessors();
+
+        // 向 beanPostProcessors 中添加后置处理器
+        for (BeanPostProcessor beanPostProcessor : this.getBeansOfType(BeanPostProcessor.class).values()) {
+            this.addBeanPostProcessor(beanPostProcessor);
+        }
 
         // 初始化单例对象，如果实现了 ApplicationContextAware 则为其注入应用上下文
         this.configureAllManagedObjects();
@@ -265,4 +271,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
      * 获取当前 ApplicationContext 的 BF
      */
     protected abstract ListableBeanFactory getBeanFactory();
+
+    // ------>
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        getBeanFactory().addBeanPostProcessor(beanPostProcessor);
+    }
 }

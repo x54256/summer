@@ -58,7 +58,10 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 
         List<String> matches = new ArrayList<>();
 
-        beanDefinitionMap.forEach((beanName, bd) -> {
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            String beanName = entry.getKey();
+            BeanDefinition bd = entry.getValue();
+
             Class<?> beanType;
 
             String className = bd.getClassName();
@@ -72,12 +75,15 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
             if (FactoryBean.class.isAssignableFrom(beanType)) {
                 Object fb = this.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
                 beanType = ((FactoryBean<?>)fb).getObjectType();
+                if (beanType == null) {
+                    continue;
+                }
             }
 
             if (type.isAssignableFrom(beanType)) {
                 matches.add(beanName);
             }
-        });
+        }
         return matches.toArray(new String[0]);
     }
 

@@ -12,7 +12,6 @@ import cn.x5456.summer.beans.factory.annotation.Component;
 import cn.x5456.summer.beans.factory.annotation.InitAnnotationBeanPostProcessor;
 import cn.x5456.summer.beans.factory.annotation.ResourcePostProcessor;
 import cn.x5456.summer.beans.factory.config.BeanDefinition;
-import cn.x5456.summer.beans.factory.config.BeanPostProcessor;
 import cn.x5456.summer.beans.factory.support.DefaultBeanDefinition;
 import cn.x5456.summer.beans.factory.support.ListableBeanFactoryImpl;
 import cn.x5456.summer.core.util.JsonUtils;
@@ -85,9 +84,9 @@ public class JsonBeanFactoryImpl extends ListableBeanFactoryImpl {
         DefaultBeanDefinition bdDef3 = DefaultBeanDefinition.getBD(AutowiredAnnotationBeanPostProcessor.class);
         super.registerBeanDefinition(bdDef3.getName(), bdDef3);
 
-        // 向 beanPostProcessors 中添加后置处理器
-        for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {
-            super.addBeanPostProcessor(beanPostProcessor);
-        }
+//        // 向 beanPostProcessors 中添加后置处理器
+//        for (BeanPostProcessor beanPostProcessor : super.getBeansOfType(BeanPostProcessor.class).values()) {
+//            super.addBeanPostProcessor(beanPostProcessor);
+//        }
     }
 }
