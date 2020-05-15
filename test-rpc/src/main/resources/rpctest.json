@@ -1,0 +1,5 @@
+{
+  "componentScanPackages": [
+    "cn.x5456.summer.rpc"
+  ]
+}

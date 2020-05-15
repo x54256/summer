@@ -27,6 +27,8 @@
         <module>summer-webmvc</module>
         <module>test-mvc</module>
         <module>summer-web</module>
+        <module>summer-rpc</module>
+        <module>test-rpc</module>
     </modules>
 
     <properties>
@@ -61,6 +63,12 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.22</version>
         </dependency>
     </dependencies>
 

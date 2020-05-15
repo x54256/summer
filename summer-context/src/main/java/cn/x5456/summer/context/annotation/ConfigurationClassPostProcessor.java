@@ -1,12 +1,14 @@
 package cn.x5456.summer.context.annotation;
 
 import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.x5456.summer.beans.factory.BeanFactory;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.beans.factory.annotation.Component;
 import cn.x5456.summer.beans.factory.config.BeanDefinition;
 import cn.x5456.summer.beans.factory.config.BeanDefinitionRegistryPostProcessor;
 import cn.x5456.summer.beans.factory.support.BeanDefinitionRegistry;
@@ -15,16 +17,13 @@ import cn.x5456.summer.context.EnvironmentAware;
 import cn.x5456.summer.core.env.Environment;
 import cn.x5456.summer.core.type.AnnotationMetadata;
 import cn.x5456.summer.core.util.ReflectUtils;
-import cn.x5456.summer.beans.factory.annotation.Component;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author yujx
@@ -93,15 +92,28 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 
         // 1、处理 @Import 注解
-        Import annotation = AnnotationUtil.getAnnotation(clazz, Import.class);
-        if (ObjectUtil.isNotEmpty(annotation) && ObjectUtil.isNotEmpty(annotation.value())) {
-            Class<?>[] importClasses = annotation.value();
 
+        // 获取类上的所有的Import注解
+        Set<Class<?>> imports = new HashSet<>();
+        this.getImports(clazz, imports);
+        if (CollectionUtil.isNotEmpty(imports)) {
+            Class<?>[] importClasses = imports.toArray(new Class<?>[0]);
             this.processImport(registry, importClasses, annotationMetadata);
         }
 
         // 2、处理 @Bean 注解
         this.processBean(registry, classBeanDefinition, clazz);
+    }
+
+    public void getImports(Class<?> clazz, Set<Class<?>> imports) {
+        for (Annotation annotation : clazz.getAnnotations()) {
+            // 如果是 Import 类型的则加入
+            if (annotation instanceof Import) {
+                imports.addAll(Arrays.asList(((Import) annotation).value()));
+            } else if (!annotation.annotationType().getName().startsWith("java")) { // 否则判断是不是元注解，如果不是则递归的查找
+                this.getImports(annotation.annotationType(), imports);
+            }
+        }
     }
 
     private List<BeanDefinition> processComponentScan(BeanDefinitionRegistry registry, String[] basePackages) {
