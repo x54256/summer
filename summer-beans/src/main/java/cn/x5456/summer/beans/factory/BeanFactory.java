@@ -13,6 +13,14 @@ import java.util.List;
  */
 public interface BeanFactory {
 
+
+    /**
+     * 用于取消引用FactoryBean实例，并将其与FactoryBean创建的bean区分开。
+     * 例如，如果名为myJndiObject的bean是FactoryBean#getObject()获取的对象，
+     * ＆myJndiObject将返回工厂
+     */
+    String FACTORY_BEAN_PREFIX = "&";
+
     /**
      * 根据名称获取对应的 bean（工厂方法模式）
      */

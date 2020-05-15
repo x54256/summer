@@ -1,0 +1,11 @@
+{
+  "componentScanPackages": [
+    "cn.x5456.testmvc.controller"
+  ],
+  "beans": [
+    {
+      "name": "apple",
+      "className": "cn.x5456.summer.bean.FB"
+    }
+  ]
+}

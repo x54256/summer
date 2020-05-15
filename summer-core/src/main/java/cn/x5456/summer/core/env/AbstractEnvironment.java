@@ -4,6 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -58,5 +59,10 @@ public abstract class AbstractEnvironment implements Environment {
     @Override
     public List<Properties> getPropertySources() {
         return propertySources;
+    }
+
+    @Override
+    public Map<String, String> getPropertyByPrefix(String prefix) {
+        return propertyResolver.getPropertyByPrefix(prefix);
     }
 }

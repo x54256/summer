@@ -1,13 +1,12 @@
 package cn.x5456.summer.beans.factory.support;
 
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.x5456.summer.beans.factory.config.BeanDefinition;
 import cn.x5456.summer.beans.factory.BeanFactory;
+import cn.x5456.summer.beans.factory.FactoryBean;
 import cn.x5456.summer.beans.factory.ListableBeanFactory;
+import cn.x5456.summer.beans.factory.config.BeanDefinition;
 import cn.x5456.summer.core.util.ReflectUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,37 +58,34 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 
         List<String> matches = new ArrayList<>();
 
-        beanDefinitionMap.forEach((beanName, bd) -> {
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            String beanName = entry.getKey();
+            BeanDefinition bd = entry.getValue();
+
             Class<?> beanType;
 
             String className = bd.getClassName();
             if (ObjectUtil.isNotEmpty(className)) {
                 beanType = ReflectUtils.getType(className);
             } else {
-                beanType = this.factoryMethodReturnType(bd);
+                beanType = super.factoryMethodReturnType(bd);
+            }
+
+            // 如果类型是 BeanFactory 类型，则更新 beanType
+            if (FactoryBean.class.isAssignableFrom(beanType)) {
+                Object fb = this.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+                beanType = ((FactoryBean<?>)fb).getObjectType();
+                if (beanType == null) {
+                    continue;
+                }
             }
 
             if (type.isAssignableFrom(beanType)) {
                 matches.add(beanName);
             }
-        });
+        }
         return matches.toArray(new String[0]);
     }
-
-    public Class<?> factoryMethodReturnType(BeanDefinition bd) {
-        String factoryBeanName = bd.getFactoryBean();
-        String factoryMethod = bd.getFactoryMethod();
-
-        BeanDefinition factoryBD = this.getBeanDefinition(factoryBeanName);
-        String factoryClassName = factoryBD.getClassName();
-        if (ObjectUtil.isNotEmpty(factoryBD)) {
-            Method method = ClassUtil.getDeclaredMethod(ReflectUtils.getType(factoryClassName), factoryMethod);
-            return method.getReturnType();
-        } else {
-            return this.factoryMethodReturnType(bd);
-        }
-    }
-
 
     /**
      * 根据类型获取容器中所有该类型的对象
