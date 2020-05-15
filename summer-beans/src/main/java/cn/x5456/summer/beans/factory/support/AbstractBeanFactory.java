@@ -1,6 +1,7 @@
 package cn.x5456.summer.beans.factory.support;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.beans.BeanWrapper;
@@ -14,6 +15,7 @@ import cn.x5456.summer.core.env.PropertyResolver;
 import cn.x5456.summer.core.util.ReflectUtils;
 
 import javax.annotation.PreDestroy;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,6 +62,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     public Object getBean(String name) {
 
         // 先从一级缓存中获取
+        // 如果一级缓存中没有，则从二级缓存中获取（防止循环引用）
+        // 如果二级缓存中没有，则获取 bd 创建
+        //      1. & 开头，将 name 删除 &；获取 FB 对象，判断是否是 FB 类型，不是报错，清除2级缓存；是否单例；然后返回
+        //      2. 非 & 开头，直接获取，如果是 FB 类型，调用它的 getObj 方法，之后加入一级缓存
+
+
+        // 先从一级缓存中获取
         if (sharedInstanceCache.containsKey(name)) {
             return sharedInstanceCache.get(name);
         }
@@ -70,14 +79,53 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
 
         // 如果二级缓存中没有，则获取 bd 创建
-        BeanDefinition bd = this.getBeanDefinition(name);
-        if (ObjectUtil.isNotNull(bd)) {
-            Object bean = this.createBean(bd);
-            // 判断是否是单例，如果是则加入一级缓存中
-            if (bd.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
-                sharedInstanceCache.put(bd.getName(), bean);
+        // 如果是 FactoryBean 类型
+        if (this.isFactoryBean(name)) {
+
+            // 不带 & 的 beanName
+            String beanName = name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX) ? name.substring(1) : name;
+
+            BeanDefinition bd = this.getBeanDefinition(beanName);
+            if (ObjectUtil.isNotNull(bd)) {
+                Object bean = this.createBean(bd);
+
+                // 如果不是 FB 类型则报错
+                if (!(bean instanceof FactoryBean)) {
+                    // 清除二级缓存
+                    earlySingletonObjects.remove(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+                    // 抛出异常
+                    throw new RuntimeException("获取的 bean 不是 FactoryBean 类型，请不要使用 & 作为 BeanName");
+                } else {
+                    // 判断是否是单例，如果是则将 FB 对象加入一级缓存
+                    if (bd.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
+                        sharedInstanceCache.put(BeanFactory.FACTORY_BEAN_PREFIX + bd.getName(), bean);
+                    }
+
+                    // 如果 name 是以 & 开头，则直接返回对象
+                    if (name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
+                        return bean;
+                    } else {
+                        // 否则，调用它的 getObject() 方法获取对象，如果单例加入一级缓存
+                        FactoryBean<?> fb = (FactoryBean<?>) bean;
+                        Object obj = fb.getObject();
+                        if (fb.isSingleton()) {
+                            sharedInstanceCache.put(beanName, obj);
+                        }
+                        return obj;
+                    }
+                }
             }
-            return bean;
+        } else {
+            // 否则，是普通对象
+            BeanDefinition bd = this.getBeanDefinition(name);
+            if (ObjectUtil.isNotNull(bd)) {
+                Object bean = this.createBean(bd);
+                // 判断是否是单例，如果是则加入一级缓存中
+                if (bd.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
+                    sharedInstanceCache.put(bd.getName(), bean);
+                }
+                return bean;
+            }
         }
 
         // 如果 bd 为空，而且没有父 bf，则抛出异常
@@ -87,8 +135,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
         // 从父 bf 中获取
         return parentBeanFactory.getBean(name);
-
-
 //        // -> 递归结束条件1
 //        if (sharedInstanceCache.containsKey(name)) {
 //            return sharedInstanceCache.get(name);
@@ -116,6 +162,41 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 //        return bean;
     }
 
+    private boolean isFactoryBean(String beanName) {
+
+        // 判断是否以 & 开头
+        if (beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
+            return true;
+        }
+
+        // 判断类型是否是 FB 的子类
+        BeanDefinition bd = this.getBeanDefinition(beanName);
+
+        Class<?> beanType;
+        String className = bd.getClassName();
+        if (ObjectUtil.isNotEmpty(className)) {
+            beanType = ReflectUtils.getType(className);
+        } else {
+            beanType = this.factoryMethodReturnType(bd);
+        }
+
+        return FactoryBean.class.isAssignableFrom(beanType);
+    }
+
+    protected Class<?> factoryMethodReturnType(BeanDefinition bd) {
+        String factoryBeanName = bd.getFactoryBean();
+        String factoryMethod = bd.getFactoryMethod();
+
+        BeanDefinition factoryBD = this.getBeanDefinition(factoryBeanName);
+        String factoryClassName = factoryBD.getClassName();
+        if (ObjectUtil.isNotEmpty(factoryBD)) {
+            Method method = ClassUtil.getDeclaredMethod(ReflectUtils.getType(factoryClassName), factoryMethod);
+            return method.getReturnType();
+        } else {
+            return this.factoryMethodReturnType(bd);
+        }
+    }
+
     /**
      * 根据 bd 创建对象
      * <p>
@@ -134,7 +215,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
         // 1.1 将还没有注入属性的 bean 放入二级缓存中
         if (beanDefinition.getScope() == BeanDefinition.ScopeEnum.SINGLETON) {
-            earlySingletonObjects.put(beanDefinition.getName(), beanWrapper.getWrappedInstance());
+
+            // 需要判断这个对象是不是 FB，如果是，加入二级缓存的时候要加 &符号
+            String name = beanDefinition.getName();
+            if (isFactoryBean(name)) {
+                name = BeanFactory.FACTORY_BEAN_PREFIX + name;
+            }
+            earlySingletonObjects.put(name, beanWrapper.getWrappedInstance());
         }
 
         // 2、注入属性 DI （Spring 0.9 中当属性改变时会触发事件，但是默认是关闭的，暂时不知道它为了干啥）
