@@ -7,6 +7,7 @@ import cn.x5456.summer.context.ApplicationContextAware;
 import cn.x5456.summer.core.util.ReflectUtils;
 import cn.x5456.summer.rpc.Invoker;
 import cn.x5456.summer.rpc.protocol.Protocol;
+import cn.x5456.summer.rpc.proxy.ProtocolFilterWrapper;
 import cn.x5456.summer.rpc.proxy.ProxyFactory;
 
 import java.net.InetAddress;
@@ -77,7 +78,7 @@ public class ReferenceBean<T> implements FactoryBean<T>, ApplicationContextAware
         Protocol protocol = protocolMap.get(protocolName + "Protocol");
 
         // 根据协议获取执行器
-        Invoker<?> invoker = protocol. refer(ReflectUtils.getType(interfaceClass), url);
+        Invoker<?> invoker = new ProtocolFilterWrapper(protocol).refer(ReflectUtils.getType(interfaceClass), url);
         ProxyFactory proxyFactory = proxyFactoryMap.get(protocolName + "ProxyFactory");
         return (T) proxyFactory.getProxy(invoker);
     }

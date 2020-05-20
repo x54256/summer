@@ -35,7 +35,7 @@ public class ProtocolFilterWrapper implements Protocol {
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, String url) {
-        return null;
+        return this.buildInvokerChain(protocol.refer(type, url));
     }
 
     @Override
