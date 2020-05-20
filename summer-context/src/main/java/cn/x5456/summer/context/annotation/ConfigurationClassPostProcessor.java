@@ -105,7 +105,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         this.processBean(registry, classBeanDefinition, clazz);
     }
 
-    public void getImports(Class<?> clazz, Set<Class<?>> imports) {
+    private void getImports(Class<?> clazz, Set<Class<?>> imports) {
         for (Annotation annotation : clazz.getAnnotations()) {
             // 如果是 Import 类型的则加入
             if (annotation instanceof Import) {

@@ -18,6 +18,9 @@ public class TestConfig {
             System.out.println("k = " + k + "\tv:" + v);
         });
 
+        Object serviceAnnotationBeanPostProcessor = ap.getBean("serviceAnnotationBeanPostProcessor");
+        System.out.println(serviceAnnotationBeanPostProcessor);
+
     }
 
 

@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.x5456.summer.beans.PropertyArgDefinition;
 import cn.x5456.summer.beans.factory.config.BeanDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
     private String factoryMethod;
 
     // 属性参数列表
-    private List<PropertyArgDefinition> properties;
+    private List<PropertyArgDefinition> properties = new ArrayList<>();
 
 
     public static DefaultBeanDefinition getBD(Class<?> clazz) {
@@ -131,6 +132,13 @@ public class DefaultBeanDefinition implements BeanDefinition {
     public List<PropertyArgDefinition> getProperties() {
         return properties;
     }
+
+    public DefaultBeanDefinition addProperty(String name, String type, String value, String refName) {
+        PropertyArgDefinition pad = new PropertyArgDefinition(name, type, value, refName);
+        properties.add(pad);
+        return this;
+    }
+
 
     @Override
     public void setProperties(List<PropertyArgDefinition> properties) {

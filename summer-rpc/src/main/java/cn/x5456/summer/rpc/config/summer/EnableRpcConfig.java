@@ -9,10 +9,10 @@ import java.lang.annotation.*;
  * @author yujx
  * @date 2020/05/15 09:29
  */
-@Import({RpcConfiguration.class})
+@Import({RpcConfiguration.class, ProtocolConfiguration.class, ProxyFactoryConfiguration.class})
 @EnableConfigurationProperties
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-public @interface EnableRpc {
+public @interface EnableRpcConfig {
 }

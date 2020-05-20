@@ -8,12 +8,14 @@ import cn.x5456.summer.beans.factory.config.BeanFactoryPostProcessor;
 import cn.x5456.summer.beans.factory.config.BeanPostProcessor;
 import cn.x5456.summer.context.ApplicationContext;
 import cn.x5456.summer.context.ApplicationListener;
+import cn.x5456.summer.context.annotation.ConfigurationClassPostProcessor;
 import cn.x5456.summer.context.event.ApplicationEvent;
 import cn.x5456.summer.context.event.ApplicationEventMulticaster;
 import cn.x5456.summer.context.event.ApplicationEventMulticasterImpl;
 import cn.x5456.summer.context.event.ContextRefreshedEvent;
 import cn.x5456.summer.core.env.Environment;
 
+import java.util.Collection;
 import java.util.Map;
 
 ;
@@ -47,8 +49,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     protected void setLocations(String[] locations) {
         this.locations = locations;
     }
-
-
 
 
     // ---------------------> 改造完毕
@@ -111,7 +111,18 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     private void invokeBeanDefinitionRegistryPostProcessors() {
         ListableBeanFactory beanFactory = this.getBeanFactory();
 
-        for (BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor : beanFactory.getBeansOfType(BeanDefinitionRegistryPostProcessor.class).values()) {
+//        for (BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor : beanFactory.getBeansOfType(BeanDefinitionRegistryPostProcessor.class).values()) {
+//            beanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry(beanFactory);
+//        }
+
+        // 现取出 ConfigurationClassPostProcessor 执行，再从容器中获取，因为有可能是通过 @Import 注解引入的
+        ConfigurationClassPostProcessor configurationClassPostProcessor = beanFactory.getBean("configurationClassPostProcessor", ConfigurationClassPostProcessor.class);
+        configurationClassPostProcessor.postProcessBeanDefinitionRegistry(beanFactory);
+
+        Collection<BeanDefinitionRegistryPostProcessor> bdrps = beanFactory.getBeansOfType(BeanDefinitionRegistryPostProcessor.class).values();
+        bdrps.remove(configurationClassPostProcessor);
+
+        for (BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor : bdrps) {
             beanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry(beanFactory);
         }
     }

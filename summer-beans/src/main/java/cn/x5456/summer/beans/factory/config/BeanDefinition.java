@@ -1,6 +1,7 @@
 package cn.x5456.summer.beans.factory.config;
 
 import cn.x5456.summer.beans.PropertyArgDefinition;
+import cn.x5456.summer.beans.factory.support.DefaultBeanDefinition;
 
 import java.util.List;
 
@@ -53,6 +54,8 @@ public interface BeanDefinition {
     void setFactoryMethod(String factoryMethod);
 
     List<PropertyArgDefinition> getProperties();
+
+    DefaultBeanDefinition addProperty(String name, String type, String value, String refName);
 
     void setProperties(List<PropertyArgDefinition> properties);
 

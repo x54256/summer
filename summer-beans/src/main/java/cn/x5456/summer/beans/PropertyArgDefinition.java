@@ -26,6 +26,16 @@ public class PropertyArgDefinition {
      */
     private String refName;
 
+    public PropertyArgDefinition() {
+    }
+
+    public PropertyArgDefinition(String name, String type, String value, String refName) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.refName = refName;
+    }
+
     public String getName() {
         return name;
     }
