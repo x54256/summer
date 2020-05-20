@@ -28,12 +28,16 @@ public class InjvmProtocol implements Protocol {
         int startIndex = invoker.getUrl().replace("://", "").indexOf("/") + 4;
         int endIndex = invoker.getUrl().indexOf("?");
         String serviceKey = invoker.getUrl().substring(startIndex, endIndex);
-        return new InjvmExporter<T>(invoker, serviceKey, exporterMap);
+        return new InjvmExporter<>(invoker, serviceKey, exporterMap);
     }
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, String url) {
-        return null;
+        // 使用发布器发布，serviceKey 就是接口名
+        int startIndex = url.replace("://", "").indexOf("/") + 4;
+        int endIndex = url.indexOf("?");
+        String serviceKey = url.substring(startIndex, endIndex);
+        return new InjvmInvoker<>(type, url, serviceKey, exporterMap);
     }
 
     @Override

@@ -171,6 +171,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
         // 判断类型是否是 FB 的子类
         BeanDefinition bd = this.getBeanDefinition(beanName);
+        if (ObjectUtil.isNull(bd)) {
+            throw new RuntimeException(beanName + "的 bd 为空！");
+        }
 
         Class<?> beanType;
         String className = bd.getClassName();

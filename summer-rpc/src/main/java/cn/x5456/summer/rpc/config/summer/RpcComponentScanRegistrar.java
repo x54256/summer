@@ -15,13 +15,13 @@ public class RpcComponentScanRegistrar implements ImportBeanDefinitionRegistrar 
 
         // 注册对 @Service 注解标注的类注册的 BeanDefinitionRegistryPostProcessor
         String basePackage = importingClassMetadata.getAnnotation(RpcComponentScan.class).value();
-        DefaultBeanDefinition bd = DefaultBeanDefinition.getBD(ServiceAnnotationBeanPostProcessor.class);
+        DefaultBeanDefinition bdDef = DefaultBeanDefinition.getBD(ServiceAnnotationBeanPostProcessor.class);
 
-        bd.addProperty("basePackage", String.class.getName(), basePackage, null);
-        registry.registerBeanDefinition("serviceAnnotationBeanPostProcessor", bd);
+        bdDef.addProperty("basePackage", String.class.getName(), basePackage, null);
+        registry.registerBeanDefinition("serviceAnnotationBeanPostProcessor", bdDef);
 
         // 注册对标注着 @Reference 注解的字段注入值的 bean 后置处理器
-
-
+        DefaultBeanDefinition bdDef2 = DefaultBeanDefinition.getBD(ReferenceAnnotationBeanPostProcessor.class);
+        registry.registerBeanDefinition("referenceAnnotationBeanPostProcessor", bdDef2);
     }
 }

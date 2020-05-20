@@ -1,7 +1,11 @@
 package cn.x5456.summer.rpc.proxy;
 
+import cn.hutool.aop.ProxyUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.rpc.Invoker;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 /**
  * 我终于明白他为啥叫 Javassist ，他们里面的 Wrapper 对象是用 Javassist 写的实现
@@ -12,7 +16,7 @@ import cn.x5456.summer.rpc.Invoker;
 public class JavassistProxyFactory implements ProxyFactory {
     @Override
     public <T> T getProxy(Invoker<T> invoker) {
-        return null;
+        return (T) ProxyUtil.newProxyInstance(new InvokerInvocationHandler(invoker), invoker.getInterface());
     }
 
     @Override
@@ -24,9 +28,23 @@ public class JavassistProxyFactory implements ProxyFactory {
             @Override
             protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable {
                 // 由于 Method#invoke() 是可变参数，所以我们这里没有办法传 arguments ，因为会把 Object[] 当做一个对象传进去
-                // 所以我们只能做无参的。
-                return ReflectUtil.invoke(proxy, methodName);
+                // 所以我们只能做无参的。 todo
+                return ReflectUtil.invoke(proxy, methodName, arguments);
             }
         };
+    }
+
+    private static class InvokerInvocationHandler implements InvocationHandler {
+
+        private final Invoker<?> invoker;
+
+        public <T> InvokerInvocationHandler(Invoker<T> invoker) {
+            this.invoker = invoker;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) {
+            return invoker.invoke(new RpcInvocation(method, args)).recreate();
+        }
     }
 }

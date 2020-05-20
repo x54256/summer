@@ -12,16 +12,4 @@ public interface Node {
      */
     String getUrl();
 
-    /**
-     * is available.
-     *
-     * @return available.
-     */
-    boolean isAvailable();
-
-    /**
-     * destroy.
-     */
-    void destroy();
-
 }
