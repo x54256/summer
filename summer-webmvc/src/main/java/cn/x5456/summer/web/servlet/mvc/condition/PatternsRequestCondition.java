@@ -34,8 +34,12 @@ public final class PatternsRequestCondition implements RequestCondition<Patterns
     @Override
     public PatternsRequestCondition combine(PatternsRequestCondition other) {
         Set<String> result = new HashSet<>();
-        result.addAll(this.patterns);
-        result.addAll(other.patterns);
+
+        for (String classPattern : other.getPatterns()) {
+            for (String childPattern : this.getPatterns()) {
+                result.add(classPattern + childPattern);
+            }
+        }
 
         return new PatternsRequestCondition(result);
     }

@@ -130,6 +130,10 @@ public class ExceptionHandlerExceptionResolver implements ApplicationContextAwar
 
     public ServletInvocableHandlerMethod getExceptionHandlerMethod(HandlerMethod handlerMethod, Exception ex) {
 
+        if (handlerMethod == null) {
+            return null;
+        }
+
         // 先在自己类中找
         Class<?> handlerType = handlerMethod.getBeanType();
         ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(handlerType);

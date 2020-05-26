@@ -10,6 +10,7 @@ import cn.x5456.summer.web.bind.annotation.*;
  * @date 2020/04/22 16:35
  */
 @Controller
+@RequestMapping("/rest")
 public class UserController {
 
     @ModelAttribute("name")
