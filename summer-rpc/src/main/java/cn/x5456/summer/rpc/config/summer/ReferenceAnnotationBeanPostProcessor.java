@@ -34,14 +34,15 @@ public class ReferenceAnnotationBeanPostProcessor implements ApplicationContextA
             if (reference != null) {
                 // 从容器中找一下是否有这个 bean
                 String fieldName = field.getName();
-                Object refBean = applicationContext.getBean(fieldName);
-
-                // 没有则创建一个 ReferenceBean 将其注入容器中
-                if (refBean == null) {
+                Object refBean = null;
+                try {
+                    refBean = applicationContext.getBean(fieldName);
+                } catch (RuntimeException e) {
+                    // 没有则创建一个 ReferenceBean 将其注入容器中 （此处是迫于无奈才使用 try 来做条件控制，大家不要学啊）
                     DefaultBeanDefinition bdDef = new DefaultBeanDefinition();
                     bdDef.setName(fieldName);
                     bdDef.setClassName(ReferenceBean.class.getName());
-                    bdDef.addProperty("interfaceClass", String.class.getName(), field.getDeclaringClass().getName(), null);
+                    bdDef.addProperty("interfaceClass", String.class.getName(), field.getType().getName(), null);
 
                     applicationContext.registerBeanDefinition(fieldName, bdDef);
                     refBean = applicationContext.getBean(fieldName);

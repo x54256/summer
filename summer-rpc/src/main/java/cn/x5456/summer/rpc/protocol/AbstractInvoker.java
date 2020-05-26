@@ -5,6 +5,11 @@ import cn.x5456.summer.rpc.Invoker;
 import cn.x5456.summer.rpc.Result;
 import cn.x5456.summer.rpc.proxy.RpcInvocation;
 
+/**
+ * 这个是给调用方用的执行器
+ *
+ * @param <T>
+ */
 public abstract class AbstractInvoker<T> implements Invoker<T> {
 
     private final Class<T> type;
@@ -37,7 +42,6 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         RpcInvocation invocation = (RpcInvocation) inv;
         invocation.setInvoker(this);
         return this.doInvoke(invocation);
-
     }
 
     protected abstract Result doInvoke(Invocation invocation);

@@ -1,10 +1,10 @@
 package cn.x5456.summer.rpc.proxy;
 
 import cn.hutool.aop.ProxyUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.x5456.summer.rpc.Invoker;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -24,12 +24,14 @@ public class JavassistProxyFactory implements ProxyFactory {
 
         return new AbstractProxyInvoker<T>(proxy, type, url) {
 
-            // FIXME: 2020/5/19 dubbo 的这个地方采用的是 Javassist 自己写的字节码
             @Override
-            protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable {
-                // 由于 Method#invoke() 是可变参数，所以我们这里没有办法传 arguments ，因为会把 Object[] 当做一个对象传进去
-                // 所以我们只能做无参的。 todo
-                return ReflectUtil.invoke(proxy, methodName, arguments);
+            protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) {
+                try {
+                    Method method = proxy.getClass().getMethod(methodName, parameterTypes);
+                    return method.invoke(proxy, arguments);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
     }

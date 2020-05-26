@@ -3,8 +3,11 @@ package cn.x5456.summer.rpc.proxy;
 import cn.x5456.summer.rpc.Invocation;
 import cn.x5456.summer.rpc.Invoker;
 import cn.x5456.summer.rpc.Result;
+import cn.x5456.summer.rpc.RpcResult;
 
 /**
+ * 这个是给被调用方执行的执行器
+ * <p>
  * InvokerWrapper
  */
 public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
@@ -39,17 +42,10 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
 
     @Override
     public Result invoke(Invocation invocation) {
-//        try {
-//            return new RpcResult(doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments()));
-//        } catch (InvocationTargetException e) {
-//            return new RpcResult(e.getTargetException());
-//        } catch (Throwable e) {
-//            throw new RpcException("Failed to invoke remote proxy method " + invocation.getMethodName() + " to " + getUrl() + ", cause: " + e.getMessage(), e);
-//        }
-        return null;
+        return new RpcResult(doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments()));
     }
 
-    protected abstract Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable;
+    protected abstract Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments);
 
     @Override
     public String toString() {

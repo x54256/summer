@@ -37,7 +37,7 @@ public class RpcResult implements Result, Serializable {
 
     @Override
     public Object recreate() {
-        if (hasException()) {
+        if (!hasException()) {
             return result;
         }
 
