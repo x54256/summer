@@ -2,6 +2,8 @@ package cn.x5456.summer.rpc.proxy;
 
 import cn.x5456.summer.rpc.Invocation;
 import cn.x5456.summer.rpc.Invoker;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -12,6 +14,7 @@ import java.util.Map;
  * @author yujx
  * @date 2020/05/20 14:47
  */
+@Data
 public class RpcInvocation implements Invocation, Serializable {
 
     private String methodName;
@@ -20,6 +23,7 @@ public class RpcInvocation implements Invocation, Serializable {
 
     private Object[] arguments;
 
+    @JsonIgnore
     private transient Invoker<?> invoker;
 
     // 附件信息

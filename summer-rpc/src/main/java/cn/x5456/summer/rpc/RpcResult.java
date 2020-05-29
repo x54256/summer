@@ -1,11 +1,15 @@
 package cn.x5456.summer.rpc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
  * @author yujx
  * @date 2020/05/20 14:39
  */
+@Data
 public class RpcResult implements Result, Serializable {
 
     private Object result;
@@ -21,6 +25,7 @@ public class RpcResult implements Result, Serializable {
     }
 
     @Override
+    @JsonIgnore
     public Object getValue() {
         return result;
     }

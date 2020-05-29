@@ -27,6 +27,6 @@ public class DubboExporter<T> implements Exporter<T> {
      */
     @Override
     public Invoker<T> getInvoker() {
-        return null;
+        return invoker;
     }
 }

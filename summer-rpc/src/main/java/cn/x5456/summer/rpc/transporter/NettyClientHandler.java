@@ -9,4 +9,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 public class NettyClientHandler extends ChannelOutboundHandlerAdapter {
 
 
+    public NettyClientHandler(ChannelHandler handler) {
+
+    }
 }

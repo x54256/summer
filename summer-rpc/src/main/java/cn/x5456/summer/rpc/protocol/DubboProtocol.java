@@ -7,8 +7,13 @@ import cn.x5456.summer.rpc.Invocation;
 import cn.x5456.summer.rpc.Invoker;
 import cn.x5456.summer.rpc.Result;
 import cn.x5456.summer.rpc.transporter.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +49,14 @@ public class DubboProtocol implements Protocol {
             }
 
             Result result = exporter.getInvoker().invoke(invocation);
-            ctx.channel().write(JsonUtils.toString(result));
+            ByteBuf content = Unpooled.copiedBuffer(JsonUtils.toString(result).getBytes(StandardCharsets.UTF_8));
+            // 设置响应
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=utf-8");
+            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+
+            ChannelFuture channelFuture = ctx.writeAndFlush(response);
+            ctx.close();
         }
     };
 
