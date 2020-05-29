@@ -20,7 +20,7 @@ public class TestConfig {
 //        Object serviceAnnotationBeanPostProcessor = ap.getBean("serviceAnnotationBeanPostProcessor");
 //        System.out.println(serviceAnnotationBeanPostProcessor);
 
-        ap.getBean("consumer", Consumer.class).test();
+//        ap.getBean("consumer", Consumer.class).test();
 
     }
 

@@ -9,18 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>summer-rpc</artifactId>
-
+    <artifactId>test-rpc-provider2</artifactId>
     <dependencies>
         <dependency>
             <groupId>cn.x5456</groupId>
-            <artifactId>summer-context</artifactId>
+            <artifactId>test-rpc-api</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.15.Final</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

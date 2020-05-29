@@ -31,6 +31,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     // 这是组合模式啊
     private BeanFactory parentBeanFactory;
 
+    /*
+     假如 RefBean 是一个 FactoryBean 子类，他的 beanName 设置为 refBean
+
+     那么在这个缓存中 key 是 refBean value 是 RefBean 对象
+
+     FactoryBean#getObject 返回的对象存在 FactoryBeanRegistrySupport#factoryBeanObjectCache 中 格式为：{refBean: Proxy 对象}
+     */
     // key：名字 value：单例对象
     private final Map<String, Object> sharedInstanceCache = new ConcurrentHashMap<>();
 

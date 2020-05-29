@@ -1,0 +1,5 @@
+{
+  "componentScanPackages": [
+    "rpc.test.provider"
+  ]
+}

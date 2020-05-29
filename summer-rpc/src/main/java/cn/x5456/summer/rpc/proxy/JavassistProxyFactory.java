@@ -1,10 +1,10 @@
 package cn.x5456.summer.rpc.proxy;
 
 import cn.hutool.aop.ProxyUtil;
+import cn.x5456.summer.core.util.ReflectUtils;
 import cn.x5456.summer.rpc.Invoker;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -26,12 +26,7 @@ public class JavassistProxyFactory implements ProxyFactory {
 
             @Override
             protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) {
-                try {
-                    Method method = proxy.getClass().getMethod(methodName, parameterTypes);
-                    return method.invoke(proxy, arguments);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+                return ReflectUtils.invokeMethod(proxy, methodName, parameterTypes, arguments);
             }
         };
     }

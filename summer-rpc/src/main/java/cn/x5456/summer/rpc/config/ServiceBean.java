@@ -109,11 +109,11 @@ public class ServiceBean<T> implements InitializingBean, ApplicationContextAware
                 + "&interface=" + interfaceClass;
 
         // 根据 url 获取不同的 Invoker 工厂（当然我这里的条件很简单，就是根据协议名获取），创建 Invoker
-        String protocolName = url.substring(0, url.indexOf("://"));
-        ProxyFactory proxyFactory = proxyFactoryMap.get(protocolName + "ProxyFactory");
+        ProxyFactory proxyFactory = proxyFactoryMap.get("javassistProxyFactory");
         Invoker<T> invoker = proxyFactory.getInvoker(ref, (Class<T>) ReflectUtils.getType(interfaceClass), url);
 
         // 为 invoker 套上对应协议的过滤器，然后发布
+        String protocolName = url.substring(0, url.indexOf("://"));
         Protocol protocol = protocolMap.get(protocolName + "Protocol");
         ProtocolFilterWrapper protocolFilterWrapper = new ProtocolFilterWrapper(protocol);
         Exporter<T> export = protocolFilterWrapper.export(invoker);

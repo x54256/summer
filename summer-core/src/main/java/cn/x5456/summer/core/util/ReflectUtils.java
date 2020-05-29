@@ -4,6 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +43,25 @@ public final class ReflectUtils {
     }
 
 
-    private ReflectUtils() {
-    }
-
     public static Class<?> getType(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Object invokeMethod(Object obj, String methodName, Class<?>[] parameterTypes, Object[] arguments) {
+        try {
+            Method method = obj.getClass().getMethod(methodName, parameterTypes);
+            return method.invoke(obj, arguments);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    private ReflectUtils() {
     }
 }

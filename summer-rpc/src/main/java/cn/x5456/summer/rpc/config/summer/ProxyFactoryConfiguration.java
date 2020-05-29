@@ -11,7 +11,7 @@ public class ProxyFactoryConfiguration {
 
     private static final String suffix = "ProxyFactory";
 
-    @Bean(value = "injvm" + suffix)
+    @Bean(value = "javassist" + suffix)
     public JavassistProxyFactory javassistProxyFactory() {
         return new JavassistProxyFactory();
     }

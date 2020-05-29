@@ -79,7 +79,7 @@ public class ReferenceBean<T> implements FactoryBean<T>, ApplicationContextAware
 
         // 根据协议获取执行器
         Invoker<?> invoker = new ProtocolFilterWrapper(protocol).refer(ReflectUtils.getType(interfaceClass), url);
-        ProxyFactory proxyFactory = proxyFactoryMap.get(protocolName + "ProxyFactory");
+        ProxyFactory proxyFactory = proxyFactoryMap.get("javassistProxyFactory");
         return (T) proxyFactory.getProxy(invoker);
     }
 

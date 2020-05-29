@@ -1,5 +1,7 @@
 package cn.x5456.summer.rpc;
 
+import java.util.Map;
+
 /**
  * Invocation. (API, Prototype, NonThreadSafe)
  */
@@ -28,6 +30,30 @@ public interface Invocation {
      * @serial
      */
     Object[] getArguments();
+
+    /**
+     * get attachments.
+     *
+     * @return attachments.
+     * @serial
+     */
+    Map<String, String> getAttachments();
+
+    /**
+     * get attachment by key.
+     *
+     * @return attachment value.
+     * @serial
+     */
+    String getAttachment(String key);
+
+    /**
+     * get attachment by key with default value.
+     *
+     * @return attachment value.
+     * @serial
+     */
+    String getAttachment(String key, String defaultValue);
 
 
     /**

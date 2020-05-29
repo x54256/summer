@@ -1,6 +1,7 @@
 package cn.x5456.summer.rpc.config.summer;
 
 import cn.x5456.summer.context.annotation.Bean;
+import cn.x5456.summer.rpc.protocol.DubboProtocol;
 import cn.x5456.summer.rpc.protocol.InjvmProtocol;
 
 /**
@@ -14,6 +15,12 @@ public class ProtocolConfiguration {
     @Bean(value = "injvm" + suffix)
     public InjvmProtocol injvmProtocol() {
         return new InjvmProtocol();
+    }
+
+
+    @Bean(value = "dubbo" + suffix)
+    public DubboProtocol dubboProtocol() {
+        return new DubboProtocol();
     }
 
 }
